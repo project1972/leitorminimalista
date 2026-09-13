@@ -615,15 +615,15 @@
             background: #17304f
         }
 
-        .editor-actions .merge {
+        .editor-actions .merge-next {
             background: #6b46c1
         }
 
-        .editor-actions .merge:hover:not(:disabled) {
+        .editor-actions .merge-next:hover:not(:disabled) {
             background: #5736a0
         }
 
-        .editor-actions .merge:disabled {
+        .editor-actions .merge-next:disabled {
             opacity: .38;
             cursor: not-allowed
         }
@@ -801,6 +801,28 @@
             border: 0;
             background: #fff;
             flex: 1
+        }
+
+        .google-capture-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 12px;
+            border-top: 1px solid var(--border-color);
+            background: var(--card-bg-color);
+            font-size: 13px;
+        }
+
+        .google-capture-bar button {
+            flex: 0 0 auto;
+        }
+
+        @media (max-width: 720px) {
+            .google-capture-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
 
         .google-fallback {
@@ -1073,19 +1095,15 @@
             <div class="card quick-search-card">
                 <h3>🔎 Pesquisa rápida</h3>
                 <div class="search-row">
-                    <input type="text" id="searchInput" placeholder="Pesquisar conceito, palavra ou assunto..."
-                        onkeydown="if(event.key==='Enter') searchQuick()">
-                    <button id="quickSearchBtn" onclick="searchQuick()">Pesquisar</button>
+                    <input type="text" id="searchInput" placeholder="Digite o conceito, palavra ou assunto..."
+                        onkeydown="if(event.key==='Enter') handleGoogleAction()">
                 </div>
                 <div class="search-actions">
                     <span class="function-help-row">
-                        <button id="googleSearchBtn" type="button" class="secondary" onclick="handleGoogleAction()">🌐 Ver resultados do
-                        Google</button>
+                        <button id="googleSearchBtn" type="button" class="secondary" onclick="handleGoogleAction()">🌐 Ver resultados do Google</button>
                         <button type="button" class="function-help-btn" onclick="openFunctionGuide('google')" title="Como usar a pesquisa no Google">?</button>
                     </span>
-                    <span id="searchStatus">Os resultados rápidos aparecerão aqui.</span>
                 </div>
-                <div id="searchResults" class="search-results" aria-live="polite"></div>
             </div>
         </main>
 
@@ -1125,6 +1143,10 @@
                     title="Fechar pesquisa">✕</button>
             </div>
             <iframe id="googleSearchFrame" class="google-frame" title="Resultados da pesquisa Google"></iframe>
+            <div class="google-capture-bar">
+                <span>Selecione no Google o trecho desejado e copie com <strong>Ctrl+C</strong>.</span>
+                <button type="button" class="success" onclick="captureCopiedGoogleText()">📥 Capturar texto copiado</button>
+            </div>
             <div id="googleFallback" class="google-fallback">
                 <strong>O Google não permitiu exibir os resultados dentro desta janela.</strong>
                 <span>Você ainda pode abrir a pesquisa em uma nova aba.</span>
@@ -1192,7 +1214,7 @@
                     onclick="closeManualEditor()">&times;</button>
             </div>
             <div class="merge-instruction">
-                🔗 <strong>Para juntar duas células:</strong> clique na primeira célula, mantenha <strong>Ctrl</strong> pressionado e clique na segunda. Depois, clique em <strong>Mesclar células</strong>.
+                🔗 <strong>Para juntar duas células:</strong> clique no botão 🔗 da primeira célula. Ele mescla essa célula diretamente com a próxima célula abaixo.
             </div>
             <div id="editor-list" class="editor-list"></div>
             <div id="word-toolbar" class="word-toolbar">
@@ -1208,8 +1230,8 @@
                         title="Mover palavra(s) para a esquerda">◀</button>
                     <button type="button" onclick="moveSelectedWords(1)"
                         title="Mover palavra(s) para a direita">▶</button>
-                    <button type="button" id="moveCellBtn" onclick="moveSelectedWordsToCell()">↪ Outra célula</button>
-                    <button type="button" id="mergeCellsBtn" onclick="mergeSelectedCells()" class="secondary" disabled title="Selecione duas células com Ctrl/Cmd para habilitar">🔗 Mesclar células</button>
+                    <button type="button" id="moveWordUpBtn" onclick="moveSelectedWordsToAdjacentCell(-1)" title="Transferir palavra(s) para a célula acima" style="display:none">⬆️ Célula acima</button>
+                    <button type="button" id="moveWordDownBtn" onclick="moveSelectedWordsToAdjacentCell(1)" title="Transferir palavra(s) para a célula abaixo" style="display:none">⬇️ Célula abaixo</button>
                     <button type="button" onclick="undoEditor()" id="undoBtn" class="secondary"
                         title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
                     <button type="button" onclick="redoEditor()" id="redoBtn" class="secondary"
@@ -1219,7 +1241,7 @@
                 </div>
             </div>
             <div class="editor-footer">
-                <span style="font-size:12px;color:var(--secondary-color)">Clique numa palavra para selecioná-la. Use + para nova célula, ↑↓ para reorganizar, ↵ para quebra de linha, Ctrl/Cmd + clique em duas células para selecioná-las e 🔗 Mesclar células para juntá-las; × para excluir.</span>
+                <span style="font-size:12px;color:var(--secondary-color)">Clique numa palavra para selecioná-la. Com uma palavra selecionada, use ⬆️/⬇️ para transferi-la para a célula acima ou abaixo. Use + para nova célula, ↑↓ para reorganizar, ↵ para quebra de linha, 🔗 para mesclar com a próxima célula; × para excluir.</span>
                 <button class="success" onclick="saveManualChanges()">✓ Aplicar alterações</button>
             </div>
         </div>
@@ -1308,6 +1330,9 @@
             } else if (textoUrl) {
 
                 // Texto enviado diretamente pelo Alumno
+                lastEditorBaseText = '';
+                clearAppliedEditorVersion();
+                rawTextManuallyEditedSinceEditor = true;
                 document.getElementById('rawText').value = textoUrl;
 
                 // Deixa a anotação pronta na Pesquisa rápida, sem executar a busca.
@@ -1322,12 +1347,8 @@
 
             } else {
 
-                // Acesso avulso, sem texto
-                document.getElementById('rawText').value =
-                    `O rover Curiosity, da NASA, pousou em Marte em 2012 para investigar o passado geológico do planeta.
-
-A missão do Curiosity é determinar se Marte já teve as condições ambientais necessárias para sustentar vida microbiana.`;
-
+                // Acesso avulso, sem texto: começa com a caixa de entrada vazia.
+                document.getElementById('rawText').value = '';
                 updateCounters();
             }
         });
@@ -1562,6 +1583,9 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
 
         function clearRawText() {
             stopReading();
+            lastEditorBaseText = '';
+            clearAppliedEditorVersion();
+            rawTextManuallyEditedSinceEditor = true;
             rawTextArea.value = "";
             sentences = [];
             currentIndex = 0;
@@ -1577,10 +1601,10 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
         const FLOW_GUIDE_KEY = 'flowread_guide_disabled_v1';
         let flowGuideIndex = 0;
         const flowGuideSteps = [
-            {target:'#searchInput', title:'1. Comece pela pesquisa', text:'Digite o conceito ou assunto que deseja estudar. Você pode usar a pesquisa rápida para referências ou abrir os resultados do Google.', tip:'A ideia é encontrar material útil para estudar, não guardar toda a página.'},
-            {target:'#googleSearchBtn', title:'2. Pesquise no Google', text:'Abra a busca do Google. Você pode entrar em um site encontrado pela pesquisa ou usar uma resposta da IA do Google como ponto de partida.', tip:'Selecione somente o trecho que realmente interessa ao seu estudo.'},
+            {target:'#searchInput', title:'1. Comece pela pesquisa', text:'Digite o conceito, palavra ou assunto que deseja estudar. A busca será feita diretamente no Google.', tip:'Prefira procurar uma explicação clara e objetiva para o que você quer compreender.'},
+            {target:'#googleSearchBtn', title:'2. Use o Google e, de preferência, a AI Overview', text:'Clique em “Ver resultados do Google”. Dê preferência à resposta gerada pela IA do Google, a AI Overview (Visão geral da IA), quando ela estiver disponível e trouxer uma explicação adequada.', tip:'A AI Overview pode servir como ponto de partida. Se necessário, também abra uma página dos resultados para complementar a informação.'},
             {target:'#rawText', title:'3. Traga apenas o que interessa', text:'Copie o trecho escolhido no Google, feche a tela da busca e volte para a Leitura Guiada. Cole o texto na caixa de texto.', tip:'Quanto mais objetivo for o trecho, melhor será o material de leitura.'},
-            {target:'#manualEditorBtn', title:'4. Apare e organize', text:'Use “Aparar e organizar” para retirar links, ruídos, chamadas e partes que não fazem parte do conteúdo que você quer estudar.', tip:'O editor permite selecionar palavras, recortar, apagar, mover e organizar o texto.'},
+            {target:'#manualEditorBtn', title:'4. Apare e organize', text:'Use “Aparar e organizar” para retirar links, ruídos, chamadas e partes que não fazem parte do conteúdo que você quer estudar.', tip:'O editor permite selecionar palavras, recortar, apagar, mover e organizar o texto, inclusive transferir palavras para a célula acima ou abaixo.'},
             {target:'#generateBtn', title:'5. Prepare a leitura', text:'Clique em “Resumir e iniciar leitura”. O texto é dividido em frases e preparado para a leitura guiada conforme a proporção escolhida.', tip:'O padrão atual é 100% das frases.'},
             {target:'#rotuloLinkInput', title:'6. Dê um nome ao texto', text:'Use um título curto e identificável, de preferência retirado do próprio assunto do texto que você acabou de preparar.', tip:'Um bom título facilita encontrar e reconhecer essa leitura depois.'},
             {target:'#saveLinkBtn', title:'7. Salve no Alumno', text:'Salve a leitura para criar o vínculo com o conteúdo do Alumno. Depois você poderá reabrir para editar ou simplesmente ler e reler.', tip:'As releituras e o registro de trechos podem participar do ciclo de aprendizagem do Alumno.'}
@@ -1659,15 +1683,15 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             google: {
                 icon:'🌐',
                 title:'Como usar a pesquisa no Google',
-                step:'Pesquise o assunto e abra um resultado. O texto de interesse pode estar na própria resposta da IA do Google ou em uma página de um site.',
-                tip:'Selecione com o mouse somente o trecho que quer estudar e copie com Ctrl+C. Depois feche a tela do Google.',
+                step:'Digite o assunto e clique em “Ver resultados do Google”. Sempre que estiver disponível e for adequada ao assunto, prefira a resposta gerada pela IA do Google, a AI Overview (Visão geral da IA), como ponto de partida para o seu estudo.',
+                tip:'Na AI Overview ou em uma página dos resultados, selecione com o mouse somente o trecho que quer estudar e copie com Ctrl+C. Depois feche a tela do Google.',
                 next:'Entendi, abrir Google'
             },
             trim: {
                 icon:'✂️',
                 title:'Como usar Aparar e organizar',
-                step:'Cole o texto na caixa de entrada e abra “Aparar e organizar”. O editor ajuda a retirar links e ruídos e permite apagar, mover, criar quebras de linha e mesclar células.',
-                tip:'Use o editor para deixar somente o conteúdo que você realmente quer estudar. Ao terminar, clique em “Aplicar alterações”.',
+                step:'Cole o texto na caixa de entrada e abra “Aparar e organizar”. O editor ajuda a retirar links e ruídos e permite apagar, mover palavras dentro da célula, transferir palavras para a célula acima ou abaixo, criar quebras de linha e mesclar células.',
+                tip:'Para transferir uma palavra, selecione-a e use ⬆️ Célula acima ou ⬇️ Célula abaixo. Para juntar células, clique no botão 🔗 da primeira célula; ela será mesclada diretamente com a próxima célula abaixo. Ao terminar, clique em “Aplicar alterações”.',
                 next:'Abrir editor'
             },
             save: {
@@ -1729,11 +1753,37 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             else if(type === 'save') salvarVinculoFirebase();
         }
 
+        function handleGuideEnter(event) {
+            if (event.key !== 'Enter' || event.isComposing) return false;
+
+            const functionOverlay = document.getElementById('functionGuideOverlay');
+            if (functionOverlay?.classList.contains('active')) {
+                event.preventDefault();
+                event.stopPropagation();
+                continueFunctionGuide();
+                return true;
+            }
+
+            const flowOverlay = document.getElementById('flowGuideOverlay');
+            if (flowOverlay?.classList.contains('active')) {
+                event.preventDefault();
+                event.stopPropagation();
+                flowGuideNext();
+                return true;
+            }
+
+            return false;
+        }
+
+        document.addEventListener('keydown', handleGuideEnter, true);
+
         async function pasteFromClipboard() {
             try {
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     const text = await navigator.clipboard.readText();
                     rawTextArea.value = garantirEspacos(text);
+                    rawTextManuallyEditedSinceEditor = true;
+                    if (lastEditorAppliedText || lastEditorAppliedCells.length) { lastEditorBaseText = rawTextArea.value; clearAppliedEditorVersion(); }
                     updateCounters();
                 } else {
                     throw new Error("API Clipboard não suportada neste contexto.");
@@ -1743,6 +1793,8 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
                 const userText = prompt("Cole seu texto aqui (Ctrl+V):");
                 if (userText !== null) {
                     rawTextArea.value = garantirEspacos(userText);
+                    rawTextManuallyEditedSinceEditor = true;
+                    if (lastEditorAppliedText || lastEditorAppliedCells.length) { lastEditorBaseText = rawTextArea.value; clearAppliedEditorVersion(); }
                     updateCounters();
                 }
             }
@@ -1770,6 +1822,14 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
         function searchGoogleCore() {
             const q = document.getElementById('searchInput').value.trim();
             if (!q) { alert('Digite um termo para pesquisar.'); return; }
+
+            const rotuloInput = document.getElementById('rotuloLinkInput');
+            // Em uma nova leitura, o termo pesquisado vira o título padrão.
+            if (!leituraIdAtual && rotuloInput) {
+                const atual = rotuloInput.value.trim();
+                if (!atual || atual === 'Leitura Guiada') rotuloInput.value = q;
+            }
+
             googleSearchUrlAtual = `https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}`;
             const overlay = document.getElementById('google-search-overlay');
             const frame = document.getElementById('googleSearchFrame');
@@ -1783,6 +1843,32 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             overlay.setAttribute('aria-hidden', 'false');
         }
 
+        async function captureCopiedGoogleText() {
+            try {
+                if (!navigator.clipboard?.readText) throw new Error('Clipboard não disponível');
+                const text = (await navigator.clipboard.readText() || '').trim();
+                if (!text) {
+                    alert('Nenhum texto encontrado na área de transferência. Selecione o trecho no Google e pressione Ctrl+C primeiro.');
+                    return;
+                }
+
+                rawTextArea.value = garantirEspacos(text);
+                rawTextManuallyEditedSinceEditor = true;
+                if (lastEditorAppliedText || lastEditorAppliedCells.length) {
+                    lastEditorBaseText = rawTextArea.value;
+                    clearAppliedEditorVersion();
+                }
+                updateCounters();
+                closeGoogleSearch();
+                rawTextArea.focus();
+                rawTextArea.selectionStart = rawTextArea.value.length;
+                rawTextArea.selectionEnd = rawTextArea.value.length;
+            } catch (err) {
+                console.warn('Não foi possível capturar o texto copiado do Google:', err);
+                alert('O navegador não permitiu ler a área de transferência. Selecione o trecho no Google, pressione Ctrl+C, feche esta janela e use “Colar” na Leitura Guiada.');
+            }
+        }
+
         function closeGoogleSearch() {
             const overlay = document.getElementById('google-search-overlay');
             const frame = document.getElementById('googleSearchFrame');
@@ -1793,54 +1879,6 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
 
         function openGoogleExternal() {
             if (googleSearchUrlAtual) window.open(googleSearchUrlAtual, '_blank', 'noopener,noreferrer');
-        }
-
-        async function searchQuick() {
-            const input = document.getElementById('searchInput');
-            const results = document.getElementById('searchResults');
-            const status = document.getElementById('searchStatus');
-            const q = input.value.trim();
-
-            if (!q) {
-                results.classList.remove('active');
-                results.innerHTML = '';
-                status.textContent = 'Digite um termo para pesquisar.';
-                return;
-            }
-
-            status.textContent = 'Pesquisando...';
-            results.classList.add('active');
-            results.innerHTML = '<div class="search-empty">Buscando referências...</div>';
-
-            try {
-                const url = `https://pt.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&utf8=1&format=json&origin=*&srlimit=6`;
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Falha na pesquisa');
-                const data = await response.json();
-                const items = data?.query?.search || [];
-
-                if (!items.length) {
-                    results.innerHTML = '<div class="search-empty">Nenhum resultado encontrado na Wikipédia. Use “Pesquisa Web” para uma busca mais ampla.</div>';
-                    status.textContent = 'Nenhum resultado';
-                    return;
-                }
-
-                results.innerHTML = items.map(item => {
-                    const title = item.title;
-                    const snippet = item.snippet.replace(/<[^>]*>/g, '');
-                    const link = `https://pt.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
-                    return `<div class="search-result">
-                <a href="${link}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>
-                <p>${escapeHtml(snippet)}...</p>
-            </div>`;
-                }).join('');
-
-                status.textContent = `${items.length} resultado(s) na Wikipédia`;
-            } catch (error) {
-                console.error('Erro na Pesquisa Rápida:', error);
-                results.innerHTML = '<div class="search-empty">Não foi possível carregar os resultados agora. Use “Pesquisa Web” para continuar.</div>';
-                status.textContent = 'Pesquisa indisponível';
-            }
         }
 
         function escapeHtml(value) {
@@ -1941,7 +1979,8 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
                 return;
             }
 
-            const rotulo = document.getElementById('rotuloLinkInput').value.trim() || "Leitura Guiada";
+            const rotuloInput = document.getElementById('rotuloLinkInput');
+            const rotulo = rotuloInput?.value.trim() || document.getElementById('searchInput')?.value.trim() || "Leitura Guiada";
             const saveBtn = document.getElementById('saveLinkBtn');
             const agora = new Date().toISOString();
 
@@ -2047,8 +2086,13 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
                     const saveBtn = document.getElementById('saveLinkBtn');
                     if (saveBtn) saveBtn.textContent = "💾 Atualizar Leitura Vinculada";
                     const data = docRef.data();
+                    lastEditorBaseText = '';
+                    clearAppliedEditorVersion();
+                    rawTextManuallyEditedSinceEditor = false;
                     if (data && data.sentences) {
                         sentences = data.sentences.map(s => garantirEspacos(s));
+                        lastEditorAppliedCells = [...sentences];
+                        lastEditorAppliedText = sentences.join('\n\n');
                         currentIndex = 0;
                         if (data.rawText) rawTextArea.value = garantirEspacos(data.rawText);
                         showCurrent();
@@ -2353,13 +2397,46 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             openFunctionGuide('trim', 'action');
         }
 
+        // Estado persistente da última versão efetivamente aplicada pelo editor.
+        // A versão aparada deve ser a fonte de verdade para uma nova abertura
+        // do editor, mesmo que algum outro fluxo volte a preencher a textarea
+        // com o texto original. Só abandonamos essa versão quando o usuário
+        // realmente altera a caixa de entrada.
+        let lastEditorBaseText = '';
+        let lastEditorAppliedText = '';
+        let lastEditorAppliedCells = [];
+        let rawTextManuallyEditedSinceEditor = false;
+
+        function clearAppliedEditorVersion() {
+            lastEditorAppliedText = '';
+            lastEditorAppliedCells = [];
+        }
+
+        function markRawTextAsNewContent() {
+            rawTextManuallyEditedSinceEditor = true;
+            if (lastEditorAppliedText || lastEditorAppliedCells.length) {
+                lastEditorBaseText = rawTextArea.value;
+                clearAppliedEditorVersion();
+            }
+        }
+
+        // Toda alteração feita diretamente pelo usuário na caixa de texto
+        // inicia um novo conteúdo e, portanto, encerra a continuidade da
+        // última sessão do editor.
+        rawTextArea.addEventListener('input', markRawTextAsNewContent);
+
         function openManualEditor() {
             const editorList = document.getElementById('editor-list');
-            const text = rawTextArea.value;
-            if (!text.trim()) { alert('A caixa de entrada de texto está vazia.'); return; }
+            const textoAtual = rawTextArea.value;
+            let usarCelulasAplicadas = Array.isArray(lastEditorAppliedCells)
+                && lastEditorAppliedCells.length > 0
+                && !rawTextManuallyEditedSinceEditor;
 
-            const textoLimpo = limparLinksParaEditor(text);
-            const frasesAparadas = prepararCelulasDoEditor(textoLimpo);
+            if (!usarCelulasAplicadas && !textoAtual.trim()) {
+                alert('A caixa de entrada de texto está vazia.');
+                return;
+            }
+
             editorList.innerHTML = '';
             editorUndoStack = [];
             editorRedoStack = [];
@@ -2372,9 +2449,23 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             cutWordBuffer = null;
             lastSelectedIndex = null;
             updateWordToolbar();
-            frasesAparadas.forEach(frase => addEditorCell(frase));
+
+            if (usarCelulasAplicadas) {
+                // IMPORTANTE: reabre exatamente as células produzidas pela última
+                // aplicação. Não roda novamente a preparação automática, pois ela
+                // poderia separar/alterar células e desfazer mesclagens, exclusões
+                // e a ordem definida manualmente pelo usuário.
+                lastEditorAppliedCells.forEach(frase => addEditorCell(frase));
+            } else {
+                const textoBase = limparLinksParaEditor(textoAtual);
+                const frasesAparadas = prepararCelulasDoEditor(textoBase);
+                lastEditorBaseText = textoAtual;
+                frasesAparadas.forEach(frase => addEditorCell(frase));
+            }
+
             historyReady = true;
             updateHistoryButtons();
+            updateMergeNextButtons();
             document.getElementById('manual-editor-modal').style.display = 'flex';
         }
 
@@ -2538,73 +2629,45 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             selectedWord = selectedWords[0] || null;
         }
 
-        function updateSelectedCellsUI() {
-            document.querySelectorAll('.editor-item.selected-cell').forEach(el => el.classList.remove('selected-cell'));
-            selectedCells = selectedCells.filter(cell => cell && document.body.contains(cell));
-            selectedCells.forEach(cell => cell.classList.add('selected-cell'));
-            selectedCell = selectedCells[selectedCells.length - 1] || null;
-
-            const canMerge = selectedCells.length === 2;
-            document.querySelectorAll('.editor-item .editor-actions .merge').forEach(btn => {
-                btn.disabled = !canMerge;
+        function updateMergeNextButtons() {
+            document.querySelectorAll('.editor-item .editor-actions .merge-next').forEach(btn => {
+                const item = btn.closest('.editor-item');
+                btn.disabled = !(item && item.nextElementSibling && item.nextElementSibling.classList.contains('editor-item'));
             });
-            const mergeToolbar = document.getElementById('mergeCellsBtn');
-            if (mergeToolbar) mergeToolbar.disabled = !canMerge;
         }
 
         function selectCell(itemDiv, event = {}) {
             if (!itemDiv) return;
-            const multi = !!(event.ctrlKey || event.metaKey);
-
-            if (multi) {
-                const idx = selectedCells.indexOf(itemDiv);
-                if (idx >= 0) selectedCells.splice(idx, 1);
-                else selectedCells.push(itemDiv);
-            } else {
-                selectedCells = [itemDiv];
-            }
-
+            selectedCell = itemDiv;
+            document.querySelectorAll('.editor-item.selected-cell').forEach(el => el.classList.remove('selected-cell'));
+            itemDiv.classList.add('selected-cell');
             selectedWords = [];
             selectedWord = null;
             lastSelectedIndex = null;
-            updateSelectedCellsUI();
             updateWordToolbar();
         }
 
-        function mergeSelectedCells() {
-            const beforeState = beginEditorHistory();
-            const cells = selectedCells.filter(cell => cell && document.body.contains(cell));
-            if (cells.length !== 2) {
-                alert('Selecione exatamente duas células com Ctrl (Windows) ou Cmd (Mac) e depois clique em 🔗 Mesclar células.');
-                return;
-            }
-
-            const ordered = cells.slice().sort((a, b) => {
-                const pos = a.compareDocumentPosition(b);
-                return (pos & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
-            });
-            const first = ordered[0];
-            const second = ordered[1];
-            const p1 = first.querySelector('p');
-            const p2 = second.querySelector('p');
+        function mergeCellWithNext(itemDiv) {
+            if (!itemDiv) return;
+            const next = itemDiv.nextElementSibling;
+            if (!next || !next.classList.contains('editor-item')) return;
+            const p1 = itemDiv.querySelector('p');
+            const p2 = next.querySelector('p');
             if (!p1 || !p2) return;
 
+            const beforeState = beginEditorHistory();
             const t1 = normalizarTextoEditor(p1.textContent);
             const t2 = normalizarTextoEditor(p2.textContent);
-            const merged = [t1, t2].filter(Boolean).join(' ');
-
-            renderWordModules(p1, merged);
-            second.remove();
-
-            selectedCells = [first];
-            selectedCell = first;
+            renderWordModules(p1, [t1, t2].filter(Boolean).join(' '));
+            next.remove();
+            selectedCell = itemDiv;
+            document.querySelectorAll('.editor-item.selected-cell').forEach(el => el.classList.remove('selected-cell'));
+            itemDiv.classList.add('selected-cell');
             selectedWords = [];
             selectedWord = null;
-            lastSelectedIndex = null;
-            updateSelectedCellsUI();
-            recordEditorHistory(beforeState);
+            updateMergeNextButtons();
             updateWordToolbar();
-            first.scrollIntoView({ block: 'nearest' });
+            recordEditorHistory(beforeState);
         }
 
         function getCaretCharacterOffsetWithin(element) {
@@ -2768,21 +2831,25 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
 
             const actions = document.createElement('div');
             actions.className = 'editor-actions';
+
+            const deleteBtn = document.createElement('button'); deleteBtn.className = 'delete'; deleteBtn.textContent = '×'; deleteBtn.title = 'Excluir célula';
+            deleteBtn.onclick = e => { e.stopPropagation(); const beforeState = beginEditorHistory(); selectedWords = selectedWords.filter(w => w.closest('.editor-item') !== itemDiv); if (selectedCell === itemDiv) selectedCell = null; itemDiv.remove(); if (!document.querySelector('#editor-list .editor-item')) { const wasReady = historyReady; historyReady = false; addEditorCell(''); historyReady = wasReady; } updateMergeNextButtons(); recordEditorHistory(beforeState); updateWordToolbar(); };
+
             const addBtn = document.createElement('button'); addBtn.className = 'insert'; addBtn.textContent = '+'; addBtn.title = 'Criar uma célula em branco abaixo';
             addBtn.onclick = e => { e.stopPropagation(); const novo = addEditorCell('', itemDiv); novo.querySelector('p').focus(); selectCell(novo); };
             const lineBreakBtn = document.createElement('button'); lineBreakBtn.className = 'line-break'; lineBreakBtn.textContent = '↵'; lineBreakBtn.title = 'Inserir quebra de linha nesta célula';
             lineBreakBtn.onclick = e => { e.stopPropagation(); insertManualLineBreak(itemDiv, p); };
             const upBtn = document.createElement('button'); upBtn.className = 'move'; upBtn.textContent = '↑'; upBtn.title = 'Mover célula para cima'; upBtn.onclick = e => { e.stopPropagation(); moveEditorCell(itemDiv, -1); };
             const downBtn = document.createElement('button'); downBtn.className = 'move'; downBtn.textContent = '↓'; downBtn.title = 'Mover célula para baixo'; downBtn.onclick = e => { e.stopPropagation(); moveEditorCell(itemDiv, 1); };
-            const mergeBtn = document.createElement('button'); mergeBtn.className = 'merge'; mergeBtn.textContent = '🔗'; mergeBtn.title = 'Mesclar as duas células selecionadas';
-            mergeBtn.disabled = true;
-            mergeBtn.onclick = e => { e.stopPropagation(); mergeSelectedCells(); };
-            const deleteBtn = document.createElement('button'); deleteBtn.className = 'delete'; deleteBtn.textContent = '×'; deleteBtn.title = 'Excluir célula';
-            deleteBtn.onclick = e => { e.stopPropagation(); const beforeState = beginEditorHistory(); selectedWords = selectedWords.filter(w => w.closest('.editor-item') !== itemDiv); selectedCells = selectedCells.filter(c => c !== itemDiv); if (selectedCell === itemDiv) selectedCell = null; itemDiv.remove(); if (!document.querySelector('#editor-list .editor-item')) { const wasReady = historyReady; historyReady = false; addEditorCell(''); historyReady = wasReady; } recordEditorHistory(beforeState); updateWordToolbar(); };
-            actions.append(addBtn, lineBreakBtn, upBtn, downBtn, mergeBtn, deleteBtn);
+
+            const mergeBtn = document.createElement('button'); mergeBtn.className = 'merge-next'; mergeBtn.textContent = '🔗'; mergeBtn.title = 'Mesclar esta célula com a próxima';
+            mergeBtn.onclick = e => { e.stopPropagation(); mergeCellWithNext(itemDiv); };
+
+            actions.append(deleteBtn, addBtn, lineBreakBtn, upBtn, downBtn, mergeBtn);
             itemDiv.append(p, actions);
             if (afterElement && afterElement.parentNode) afterElement.parentNode.insertBefore(itemDiv, afterElement.nextSibling); else editorList.appendChild(itemDiv);
             recordEditorHistory(beforeState);
+            updateMergeNextButtons();
             return itemDiv;
         }
 
@@ -2791,6 +2858,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             const list = document.getElementById('editor-list'); const target = direction < 0 ? item.previousElementSibling : item.nextElementSibling;
             if (!target || !target.classList.contains('editor-item')) return;
             if (direction < 0) list.insertBefore(item, target); else list.insertBefore(target, item); selectCell(item);
+            updateMergeNextButtons();
             recordEditorHistory(beforeState);
         }
 
@@ -2808,7 +2876,8 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             const toolbar = document.getElementById('word-toolbar');
             const label = document.getElementById('selected-word-label');
             const pasteBtn = document.getElementById('pasteCutBtn');
-            const moveCellBtn = document.getElementById('moveCellBtn');
+            const moveUpBtn = document.getElementById('moveWordUpBtn');
+            const moveDownBtn = document.getElementById('moveWordDownBtn');
             const mergeBtn = document.getElementById('mergeCellsBtn');
             const selected = getSelectedWords();
             if (!toolbar) return;
@@ -2822,7 +2891,20 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
                     : (cutWordBuffer ? 'Conteúdo pronto para colar' : 'Nenhuma palavra selecionada'));
 
             if (pasteBtn) pasteBtn.style.display = 'inline-flex';
-            if (moveCellBtn) moveCellBtn.style.display = 'inline-flex';
+
+            const sourceCell = selected.length ? selected[0].closest('.editor-item') : null;
+            const previousCell = sourceCell?.previousElementSibling?.classList.contains('editor-item') ? sourceCell.previousElementSibling : null;
+            const nextCell = sourceCell?.nextElementSibling?.classList.contains('editor-item') ? sourceCell.nextElementSibling : null;
+            const hasSelection = selected.length > 0;
+
+            if (moveUpBtn) {
+                moveUpBtn.style.display = hasSelection ? 'inline-flex' : 'none';
+                moveUpBtn.disabled = !previousCell;
+            }
+            if (moveDownBtn) {
+                moveDownBtn.style.display = hasSelection ? 'inline-flex' : 'none';
+                moveDownBtn.disabled = !nextCell;
+            }
             if (mergeBtn) mergeBtn.disabled = selectedCells.length !== 2;
         }
 
@@ -2890,6 +2972,25 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             selectedWords = []; selectedWord = null; recordEditorHistory(beforeState); updateWordToolbar();
         }
 
+        function moveSelectedWordsToAdjacentCell(direction) {
+            const selected = getSelectedWords();
+            if (!selected.length) return;
+
+            const sourceCell = selected[0].closest('.editor-item');
+            if (!sourceCell || selected.some(w => w.closest('.editor-item') !== sourceCell)) {
+                alert('Selecione palavras da mesma célula para transferi-las.');
+                return;
+            }
+
+            const targetCell = direction < 0
+                ? sourceCell.previousElementSibling
+                : sourceCell.nextElementSibling;
+
+            if (!targetCell || !targetCell.classList.contains('editor-item')) return;
+
+            moveSelectedWordsToCell(targetCell);
+        }
+
         function moveSelectedWordsToCell(targetCell = null, targetP = null, clientX = null) {
             const beforeState = beginEditorHistory();
             const selected = getSelectedWords(); if (!selected.length) return;
@@ -2953,8 +3054,13 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             // Cada célula continua sendo um período/bloco. Quebras de linha manuais
             // permanecem dentro da mesma célula e são preservadas no texto salvo.
             const combinedText = paragraphs.join('\n\n');
+            const appliedCells = paragraphs.map(s => s.trim()).filter(Boolean);
             rawTextArea.value = combinedText;
-            sentences = paragraphs.map(s => s.trim()).filter(Boolean);
+            lastEditorAppliedText = combinedText;
+            lastEditorAppliedCells = [...appliedCells];
+            lastEditorBaseText = combinedText;
+            rawTextManuallyEditedSinceEditor = false;
+            sentences = [...appliedCells];
             currentIndex = 0;
 
             closeManualEditor();
