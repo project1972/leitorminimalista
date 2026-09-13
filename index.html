@@ -530,7 +530,8 @@
             font-size: 26px;
             line-height: 1.5;
             word-spacing: 2px;
-            cursor: text
+            cursor: text;
+            white-space: pre-wrap;
         }
 
         .editor-item p:focus {
@@ -604,6 +605,27 @@
 
         .editor-actions .move {
             background: var(--secondary-color)
+        }
+
+        .editor-actions .line-break {
+            background: #1e3a5f
+        }
+
+        .editor-actions .line-break:hover {
+            background: #17304f
+        }
+
+        .editor-actions .merge {
+            background: #6b46c1
+        }
+
+        .editor-actions .merge:hover:not(:disabled) {
+            background: #5736a0
+        }
+
+        .editor-actions .merge:disabled {
+            opacity: .38;
+            cursor: not-allowed
         }
 
         .editor-actions .delete {
@@ -852,6 +874,120 @@
                 border-radius: 10px
             }
         }
+
+        /* =======================================================
+           GUIAS ESPECÍFICOS DAS FUNÇÕES
+           ======================================================= */
+        .function-help-btn{
+            width:27px;height:27px;padding:0;border-radius:50%;
+            background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;
+            font-size:12px;font-weight:800;display:inline-flex;
+            align-items:center;justify-content:center;
+        }
+        .function-help-btn:hover{background:#e0e7ff;color:#312e81;transform:none}
+        .function-help-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+        .merge-instruction {
+            margin: 10px 15px 0;
+            padding: 10px 12px;
+            border: 1px solid #93c5fd;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(37,99,235,.10), rgba(109,40,217,.10));
+            color: #1e3a8a;
+            font-size: 12px;
+            line-height: 1.45;
+            font-weight: 650;
+        }
+        .merge-instruction strong { color: #312e81; }
+
+        .function-guide-overlay{
+            position:fixed;inset:0;z-index:5100;display:none;align-items:center;justify-content:center;
+            padding:14px;background:rgba(15,23,42,.48);backdrop-filter:blur(4px);
+            -webkit-backdrop-filter:blur(4px);
+        }
+        .function-guide-overlay.active{display:flex}
+        .function-guide-card{
+            width:min(560px,94vw);background:var(--card-bg-color);
+            border:1px solid #a5b4fc;border-radius:16px;
+            box-shadow:0 28px 90px rgba(15,23,42,.30);overflow:hidden;
+        }
+        .function-guide-head{
+            display:flex;align-items:center;gap:10px;padding:13px 15px;
+            background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(109,40,217,.10));
+            border-bottom:1px solid #e0e7ff;
+        }
+        .function-guide-icon{
+            width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+            background:linear-gradient(135deg,#2563eb,#6d28d9);color:#fff;font-size:18px;
+        }
+        .function-guide-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4338ca}
+        .function-guide-title{margin:2px 0 0;font-size:16px;color:var(--heading-color)}
+        .function-guide-close{
+            margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid #cbd5e1;
+            background:var(--bg-color);color:#475569;font-size:18px;cursor:pointer;
+        }
+        .function-guide-body{padding:15px}
+        .function-guide-step{
+            display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;
+            padding:12px;border:1px solid #dbeafe;border-radius:12px;background:#f8fbff;
+        }
+        .function-guide-num{
+            width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+            background:#1e3a8a;color:#fff;font-weight:800;font-size:12px;
+        }
+        .function-guide-step strong{display:block;color:var(--heading-color);font-size:13px;margin-bottom:4px}
+        .function-guide-step span{display:block;color:var(--text-color);font-size:12px;line-height:1.55}
+        .function-guide-tip{
+            margin-top:10px;padding:10px 11px;border:1px dashed #a5b4fc;border-radius:10px;
+            background:rgba(224,231,255,.45);font-size:11px;line-height:1.5;color:#334155
+        }
+        .function-guide-footer{
+            display:flex;align-items:center;justify-content:space-between;gap:8px;
+            padding:11px 15px;border-top:1px solid var(--border-color)
+        }
+        .function-guide-check{
+            display:flex;align-items:center;gap:6px;font-size:11px;color:var(--secondary-color);cursor:pointer
+        }
+        .function-guide-actions{display:flex;gap:6px;margin-left:auto}
+        .function-guide-actions button{min-width:110px}
+        .function-guide-primary{
+            background:linear-gradient(135deg,#2563eb,#6d28d9)!important;
+        }
+        @media(max-width:600px){
+            .function-guide-card{width:98vw}
+            .function-guide-footer{flex-direction:column;align-items:stretch}
+            .function-guide-actions{margin-left:0}
+            .function-guide-actions button{flex:1}
+        }
+
+
+        /* =======================================================
+           GUIA INTERATIVO — LEITURA GUIADA
+           ======================================================= */
+        .flow-guide-overlay{position:fixed;inset:0;z-index:5000;display:none;background:rgba(15,23,42,.50);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:14px;}
+        .flow-guide-overlay.active{display:flex;}
+        .flow-guide-card{width:min(620px,94vw);background:var(--card-bg-color);border:1px solid #93c5fd;border-radius:16px;box-shadow:0 26px 80px rgba(15,23,42,.28);overflow:hidden;}
+        .flow-guide-head{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid #dbeafe;background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(30,64,175,.08));}
+        .flow-guide-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#1e3a8a;color:#fff;font-size:18px;box-shadow:0 6px 16px rgba(30,58,138,.22);}
+        .flow-guide-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1d4ed8;}
+        .flow-guide-title{margin:2px 0 0;font-size:16px;color:var(--heading-color);}
+        .flow-guide-close{margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid #cbd5e1;background:var(--bg-color);color:#475569;cursor:pointer;font-size:18px;}
+        .flow-guide-body{padding:15px;}
+        .flow-guide-progress{display:flex;gap:5px;margin-bottom:12px;}
+        .flow-guide-progress span{height:4px;flex:1;border-radius:99px;background:#dbeafe;}
+        .flow-guide-progress span.active{background:#1d4ed8;}
+        .flow-guide-step{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:12px;border:1px solid #dbeafe;border-radius:12px;background:rgba(239,246,255,.68);}
+        .flow-guide-step-num{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#1e3a8a;color:#fff;font-weight:800;font-size:12px;}
+        .flow-guide-step strong{display:block;color:var(--heading-color);font-size:13px;margin-bottom:3px;}
+        .flow-guide-step span{display:block;color:var(--text-color);font-size:12px;line-height:1.52;}
+        .flow-guide-tip{margin-top:10px;padding:10px 11px;border:1px dashed #93c5fd;border-radius:10px;background:rgba(219,234,254,.42);font-size:11px;line-height:1.5;color:#334155;}
+        .flow-guide-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 15px;border-top:1px solid var(--border-color);}
+        .flow-guide-check{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--secondary-color);cursor:pointer;}
+        .flow-guide-actions{display:flex;gap:6px;margin-left:auto;}
+        .flow-guide-actions button{min-width:92px;}
+        .flow-guide-target{outline:3px solid #60a5fa !important;outline-offset:3px !important;box-shadow:0 0 0 6px rgba(96,165,250,.18),0 8px 20px rgba(30,64,175,.16) !important;position:relative;z-index:5001 !important;}
+        @media(max-width:600px){.flow-guide-card{width:98vw}.flow-guide-footer{flex-direction:column;align-items:stretch}.flow-guide-actions{margin-left:0}.flow-guide-actions button{flex:1;}}
+
     </style>
 </head>
 
@@ -860,6 +996,7 @@
         <header>
             <h1>Leitura <span>Guiada</span></h1>
             <div class="header-controls">
+                <button type="button" onclick="openFlowGuide()" title="Como usar a Leitura Guiada">❔ Como usar</button>
                 <button type="button" onclick="toggleReadingMode()" title="Abrir modo leitura">📖 Modo Leitura</button>
                 <label class="switch" title="Alternar Modo Escuro">
                     <input type="checkbox" id="darkModeToggle"><span class="slider"></span>
@@ -876,14 +1013,17 @@
                 <div class="button-group">
                     <button onclick="copyRawText()">📑 Copiar</button>
                     <button onclick="pasteFromClipboard()">📋 Colar</button>
-                    <button onclick="openManualEditor()">✂️ Aparar e organizar</button>
+                    <span class="function-help-row">
+                        <button id="manualEditorBtn" onclick="handleManualEditorAction()">✂️ Aparar e organizar</button>
+                        <button type="button" class="function-help-btn" onclick="openFunctionGuide('trim')" title="Como usar Aparar e organizar">?</button>
+                    </span>
                     <button onclick="clearRawText()" class="secondary">🗑️ Limpar</button>
                 </div>
                 <div style="margin-top:10px">
                     <label for="summaryPercent">Proporção do resumo (% de frases)</label>
                     <input type="number" id="summaryPercent" value="100" min="5" max="100" step="5">
                 </div>
-                <button onclick="generateSentences()" style="width:100%;margin-top:2px">📝 Resumir e iniciar
+                <button id="generateBtn" onclick="generateSentences()" style="width:100%;margin-top:2px">📝 Resumir e iniciar
                     leitura</button>
             </div>
 
@@ -935,11 +1075,14 @@
                 <div class="search-row">
                     <input type="text" id="searchInput" placeholder="Pesquisar conceito, palavra ou assunto..."
                         onkeydown="if(event.key==='Enter') searchQuick()">
-                    <button onclick="searchQuick()">Pesquisar</button>
+                    <button id="quickSearchBtn" onclick="searchQuick()">Pesquisar</button>
                 </div>
                 <div class="search-actions">
-                    <button type="button" class="secondary" onclick="searchGoogle()">🌐 Ver resultados do
+                    <span class="function-help-row">
+                        <button id="googleSearchBtn" type="button" class="secondary" onclick="handleGoogleAction()">🌐 Ver resultados do
                         Google</button>
+                        <button type="button" class="function-help-btn" onclick="openFunctionGuide('google')" title="Como usar a pesquisa no Google">?</button>
+                    </span>
                     <span id="searchStatus">Os resultados rápidos aparecerão aqui.</span>
                 </div>
                 <div id="searchResults" class="search-results" aria-live="polite"></div>
@@ -956,8 +1099,11 @@
                         placeholder="Ex.: Leitura Guiada - Aula 1" style="margin-bottom:0">
                 </div>
                 <div class="link-actions">
-                    <button id="saveLinkBtn" onclick="salvarVinculoFirebase()" class="success" style="width:100%">💾
+                    <div class="function-help-row" style="justify-content:flex-end">
+                        <button type="button" class="function-help-btn" onclick="openFunctionGuide('save')" title="Como salvar no Alumno">?</button>
+                        <button id="saveLinkBtn" onclick="handleSaveAction()" class="success" style="flex:1">💾
                         Salvar e enviar para o Alumno</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -987,11 +1133,66 @@
         </div>
     </div>
 
+    <div id="flowGuideOverlay" class="flow-guide-overlay" aria-hidden="true">
+        <div class="flow-guide-card" role="dialog" aria-modal="true" aria-labelledby="flowGuideTitle">
+            <div class="flow-guide-head">
+                <div class="flow-guide-icon">📖</div>
+                <div>
+                    <div class="flow-guide-kicker">Orientação guiada</div>
+                    <h3 id="flowGuideTitle" class="flow-guide-title">Como usar a Leitura Guiada</h3>
+                </div>
+                <button type="button" class="flow-guide-close" onclick="closeFlowGuide()" title="Fechar">×</button>
+            </div>
+            <div class="flow-guide-body">
+                <div id="flowGuideProgress" class="flow-guide-progress"></div>
+                <div id="flowGuideStep" class="flow-guide-step"></div>
+                <div id="flowGuideTip" class="flow-guide-tip"></div>
+            </div>
+            <div class="flow-guide-footer">
+                <label class="flow-guide-check"><input type="checkbox" id="flowGuideDisable"> Não mostrar novamente</label>
+                <div class="flow-guide-actions">
+                    <button type="button" class="secondary" id="flowGuideBackBtn" onclick="flowGuideBack()">← Voltar</button>
+                    <button type="button" class="primary" id="flowGuideNextBtn" onclick="flowGuideNext()">Avançar →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="functionGuideOverlay" class="function-guide-overlay" aria-hidden="true">
+        <div class="function-guide-card" role="dialog" aria-modal="true" aria-labelledby="functionGuideTitle">
+            <div class="function-guide-head">
+                <div id="functionGuideIcon" class="function-guide-icon">❔</div>
+                <div>
+                    <div class="function-guide-kicker">Como usar</div>
+                    <h3 id="functionGuideTitle" class="function-guide-title">Ajuda da função</h3>
+                </div>
+                <button type="button" class="function-guide-close" onclick="closeFunctionGuide()" title="Fechar">×</button>
+            </div>
+            <div class="function-guide-body">
+                <div id="functionGuideStep"></div>
+                <div id="functionGuideTip" class="function-guide-tip"></div>
+            </div>
+            <div class="function-guide-footer">
+                <label class="function-guide-check">
+                    <input type="checkbox" id="functionGuideDisable"> Não mostrar novamente
+                </label>
+                <div class="function-guide-actions">
+                    <button type="button" class="secondary" onclick="closeFunctionGuide()">Cancelar</button>
+                    <button type="button" id="functionGuideContinue" class="function-guide-primary" onclick="continueFunctionGuide()">Continuar →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="manual-editor-modal" class="modal-overlay" style="display:none">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Aparar e organizar texto</h3><button class="modal-close-btn"
                     onclick="closeManualEditor()">&times;</button>
+            </div>
+            <div class="merge-instruction">
+                🔗 <strong>Para juntar duas células:</strong> clique na primeira célula, mantenha <strong>Ctrl</strong> pressionado e clique na segunda. Depois, clique em <strong>Mesclar células</strong>.
             </div>
             <div id="editor-list" class="editor-list"></div>
             <div id="word-toolbar" class="word-toolbar">
@@ -1008,6 +1209,7 @@
                     <button type="button" onclick="moveSelectedWords(1)"
                         title="Mover palavra(s) para a direita">▶</button>
                     <button type="button" id="moveCellBtn" onclick="moveSelectedWordsToCell()">↪ Outra célula</button>
+                    <button type="button" id="mergeCellsBtn" onclick="mergeSelectedCells()" class="secondary" disabled title="Selecione duas células com Ctrl/Cmd para habilitar">🔗 Mesclar células</button>
                     <button type="button" onclick="undoEditor()" id="undoBtn" class="secondary"
                         title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
                     <button type="button" onclick="redoEditor()" id="redoBtn" class="secondary"
@@ -1017,8 +1219,7 @@
                 </div>
             </div>
             <div class="editor-footer">
-                <span style="font-size:12px;color:var(--secondary-color)">Clique numa palavra para selecioná-la. Use +
-                    para nova célula, ↑↓ para reorganizar e × para excluir.</span>
+                <span style="font-size:12px;color:var(--secondary-color)">Clique numa palavra para selecioná-la. Use + para nova célula, ↑↓ para reorganizar, ↵ para quebra de linha, Ctrl/Cmd + clique em duas células para selecioná-las e 🔗 Mesclar células para juntá-las; × para excluir.</span>
                 <button class="success" onclick="saveManualChanges()">✓ Aplicar alterações</button>
             </div>
         </div>
@@ -1090,6 +1291,8 @@
 
             loadVoices();
             verificarContextoUrl();
+            // O guia aparece automaticamente somente na primeira utilização; pode ser reaberto em “Como usar”.
+            if (!isFlowGuideDisabled()) setTimeout(() => openFlowGuide(false), 500);
 
             // Deixar como padrão o percentual de 100%
             const summaryPercentInput = document.getElementById('summaryPercent');
@@ -1241,15 +1444,36 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
                 }
 
                 if ((char === '.' || char === '!' || char === '?') && !inQuotes && parenDepth === 0) {
-                    let isVsAbbr = false;
-                    let precedingText = current.trim().toLowerCase();
-                    if (char === '.' && (precedingText.endsWith('vs') || precedingText.endsWith('v'))) {
-                        isVsAbbr = true;
+                    let isSentenceEnd = true;
+                    const preceding = current.trim();
+                    const precedingLast = preceding.slice(-1);
+                    const nextNonSpaceMatch = cleanText.slice(i + 1).match(/^\s*(.)/s);
+                    const nextNonSpace = nextNonSpaceMatch ? nextNonSpaceMatch[1] : '';
+
+                    if (char === '.') {
+                        // Regra principal do editor: ponto só encerra a célula quando
+                        // funciona como ponto final depois de uma palavra.
+                        // Se o caractere anterior for número, NUNCA encerra.
+                        // Isso preserva referências como 14.133/2021, 14. 133/2021,
+                        // números de leis, datas, versões e códigos semelhantes.
+                        const pontoAposNumero = /\d$/.test(preceding);
+
+                        // Abreviações conhecidas também não encerram a célula.
+                        const abreviacao = /(?:^|\s)(?:vs|v)$/i.test(preceding);
+
+                        // Se depois do ponto vier um dígito, também não é ponto final.
+                        const seguidoDeNumero = /\d/.test(nextNonSpace);
+
+                        // Um ponto final genuíno aparece após letra e, quando há texto
+                        // depois, normalmente é seguido por letra, aspas ou parêntese.
+                        const pontoAposPalavra = /[A-Za-zÀ-ÿ]$/.test(preceding);
+
+                        isSentenceEnd = pontoAposPalavra && !pontoAposNumero && !abreviacao && !seguidoDeNumero;
                     }
 
                     current += char;
 
-                    if (!isVsAbbr) {
+                    if (isSentenceEnd) {
                         tokens.push(garantirEspacos(current));
                         current = "";
                         while (i + 1 < cleanText.length && /\s/.test(cleanText[i + 1])) {
@@ -1347,7 +1571,164 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             updateCounters();
         }
 
+        // =======================================================
+        // GUIA INTERATIVO DA LEITURA GUIADA
+        // =======================================================
+        const FLOW_GUIDE_KEY = 'flowread_guide_disabled_v1';
+        let flowGuideIndex = 0;
+        const flowGuideSteps = [
+            {target:'#searchInput', title:'1. Comece pela pesquisa', text:'Digite o conceito ou assunto que deseja estudar. Você pode usar a pesquisa rápida para referências ou abrir os resultados do Google.', tip:'A ideia é encontrar material útil para estudar, não guardar toda a página.'},
+            {target:'#googleSearchBtn', title:'2. Pesquise no Google', text:'Abra a busca do Google. Você pode entrar em um site encontrado pela pesquisa ou usar uma resposta da IA do Google como ponto de partida.', tip:'Selecione somente o trecho que realmente interessa ao seu estudo.'},
+            {target:'#rawText', title:'3. Traga apenas o que interessa', text:'Copie o trecho escolhido no Google, feche a tela da busca e volte para a Leitura Guiada. Cole o texto na caixa de texto.', tip:'Quanto mais objetivo for o trecho, melhor será o material de leitura.'},
+            {target:'#manualEditorBtn', title:'4. Apare e organize', text:'Use “Aparar e organizar” para retirar links, ruídos, chamadas e partes que não fazem parte do conteúdo que você quer estudar.', tip:'O editor permite selecionar palavras, recortar, apagar, mover e organizar o texto.'},
+            {target:'#generateBtn', title:'5. Prepare a leitura', text:'Clique em “Resumir e iniciar leitura”. O texto é dividido em frases e preparado para a leitura guiada conforme a proporção escolhida.', tip:'O padrão atual é 100% das frases.'},
+            {target:'#rotuloLinkInput', title:'6. Dê um nome ao texto', text:'Use um título curto e identificável, de preferência retirado do próprio assunto do texto que você acabou de preparar.', tip:'Um bom título facilita encontrar e reconhecer essa leitura depois.'},
+            {target:'#saveLinkBtn', title:'7. Salve no Alumno', text:'Salve a leitura para criar o vínculo com o conteúdo do Alumno. Depois você poderá reabrir para editar ou simplesmente ler e reler.', tip:'As releituras e o registro de trechos podem participar do ciclo de aprendizagem do Alumno.'}
+        ];
+
+        function isFlowGuideDisabled(){
+            try { return localStorage.getItem(FLOW_GUIDE_KEY)==='1'; } catch(_) { return false; }
+        }
+        function setFlowGuideDisabled(v){
+            try { localStorage.setItem(FLOW_GUIDE_KEY, v?'1':'0'); } catch(_) {}
+        }
+        function clearFlowGuideTarget(){
+            document.querySelectorAll('.flow-guide-target').forEach(el=>el.classList.remove('flow-guide-target'));
+        }
+        function renderFlowGuide(){
+            const step=flowGuideSteps[flowGuideIndex];
+            const progress=document.getElementById('flowGuideProgress');
+            const stepEl=document.getElementById('flowGuideStep');
+            const tip=document.getElementById('flowGuideTip');
+            const back=document.getElementById('flowGuideBackBtn');
+            const next=document.getElementById('flowGuideNextBtn');
+            if(!step||!progress||!stepEl||!tip) return;
+            progress.innerHTML=flowGuideSteps.map((_,i)=>`<span class="${i<=flowGuideIndex?'active':''}"></span>`).join('');
+            stepEl.innerHTML=`<div class="flow-guide-step-num">${flowGuideIndex+1}</div><div><strong>${escapeHtml(step.title)}</strong><span>${escapeHtml(step.text)}</span></div>`;
+            tip.innerHTML=`<strong>💡</strong> ${escapeHtml(step.tip)}`;
+            if(back) back.style.visibility=flowGuideIndex>0?'visible':'hidden';
+            if(next) next.textContent=flowGuideIndex===flowGuideSteps.length-1?'Concluir ✓':'Avançar →';
+            clearFlowGuideTarget();
+            const target=document.querySelector(step.target);
+            if(target) target.classList.add('flow-guide-target');
+        }
+        function openFlowGuide(force=true){
+            const overlay=document.getElementById('flowGuideOverlay');
+            if(!overlay) return;
+            if(!force && isFlowGuideDisabled()) return;
+            flowGuideIndex=0;
+            const check=document.getElementById('flowGuideDisable');
+            if(check) check.checked=isFlowGuideDisabled();
+            overlay.classList.add('active');
+            overlay.setAttribute('aria-hidden','false');
+            renderFlowGuide();
+        }
+        function closeFlowGuide(){
+            const check=document.getElementById('flowGuideDisable');
+            if(check?.checked) setFlowGuideDisabled(true);
+            clearFlowGuideTarget();
+            const overlay=document.getElementById('flowGuideOverlay');
+            if(overlay){ overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true'); }
+        }
+        function flowGuideNext(){
+            if(flowGuideIndex>=flowGuideSteps.length-1){ closeFlowGuide(); return; }
+            flowGuideIndex++;
+            renderFlowGuide();
+        }
+        function flowGuideBack(){
+            if(flowGuideIndex<=0) return;
+            flowGuideIndex--;
+            renderFlowGuide();
+        }
+        window.openFlowGuide=openFlowGuide;
+        window.closeFlowGuide=closeFlowGuide;
+        window.flowGuideNext=flowGuideNext;
+        window.flowGuideBack=flowGuideBack;
+
         // Funções de Área de Transferência
+
+        // =======================================================
+        // GUIAS ESPECÍFICOS DAS FUNÇÕES
+        // =======================================================
+        const FUNCTION_GUIDE_KEYS = {
+            google: 'flowread_guide_google_disabled_v1',
+            trim: 'flowread_guide_trim_disabled_v1',
+            save: 'flowread_guide_save_disabled_v1'
+        };
+        const functionGuideData = {
+            google: {
+                icon:'🌐',
+                title:'Como usar a pesquisa no Google',
+                step:'Pesquise o assunto e abra um resultado. O texto de interesse pode estar na própria resposta da IA do Google ou em uma página de um site.',
+                tip:'Selecione com o mouse somente o trecho que quer estudar e copie com Ctrl+C. Depois feche a tela do Google.',
+                next:'Entendi, abrir Google'
+            },
+            trim: {
+                icon:'✂️',
+                title:'Como usar Aparar e organizar',
+                step:'Cole o texto na caixa de entrada e abra “Aparar e organizar”. O editor ajuda a retirar links e ruídos e permite apagar, mover, criar quebras de linha e mesclar células.',
+                tip:'Use o editor para deixar somente o conteúdo que você realmente quer estudar. Ao terminar, clique em “Aplicar alterações”.',
+                next:'Abrir editor'
+            },
+            save: {
+                icon:'💾',
+                title:'Como salvar no Alumno',
+                step:'Depois de preparar a leitura, dê um título curto e identificável ao texto. De preferência, use o assunto principal ou uma expressão retirada do próprio texto.',
+                tip:'Clique em “Salvar e enviar para o Alumno”. A leitura ficará vinculada ao conteúdo atual e poderá ser reaberta para edição ou apenas para leitura e releitura.',
+                next:'Continuar para salvar'
+            }
+        };
+        let activeFunctionGuide = null;
+        let activeFunctionGuideAction = false;
+
+        function isFunctionGuideDisabled(type){
+            try { return localStorage.getItem(FUNCTION_GUIDE_KEYS[type]) === '1'; } catch(_) { return false; }
+        }
+        function setFunctionGuideDisabled(type, value){
+            try { localStorage.setItem(FUNCTION_GUIDE_KEYS[type], value ? '1' : '0'); } catch(_) {}
+        }
+        function openFunctionGuide(type, action=false){
+            const data = functionGuideData[type];
+            const overlay = document.getElementById('functionGuideOverlay');
+            if(!data || !overlay) return;
+            activeFunctionGuide = type;
+            activeFunctionGuideAction = action === 'action' || action === true;
+            document.getElementById('functionGuideIcon').textContent = data.icon;
+            document.getElementById('functionGuideTitle').textContent = data.title;
+            document.getElementById('functionGuideStep').innerHTML =
+                `<div class="function-guide-step"><div class="function-guide-num">1</div><div><strong>${escapeHtml(data.title)}</strong><span>${escapeHtml(data.step)}</span></div></div>`;
+            document.getElementById('functionGuideTip').innerHTML = `<strong>💡</strong> ${escapeHtml(data.tip)}`;
+            const check = document.getElementById('functionGuideDisable');
+            if(check) check.checked = isFunctionGuideDisabled(type);
+            const cont = document.getElementById('functionGuideContinue');
+            if(cont) cont.textContent = data.next;
+            overlay.classList.add('active');
+            overlay.setAttribute('aria-hidden','false');
+        }
+        function closeFunctionGuide(){
+            const check = document.getElementById('functionGuideDisable');
+            if(activeFunctionGuide && check?.checked) setFunctionGuideDisabled(activeFunctionGuide, true);
+            const overlay = document.getElementById('functionGuideOverlay');
+            if(overlay){
+                overlay.classList.remove('active');
+                overlay.setAttribute('aria-hidden','true');
+            }
+            activeFunctionGuide = null;
+            activeFunctionGuideAction = false;
+        }
+        function continueFunctionGuide(){
+            const type = activeFunctionGuide;
+            const action = activeFunctionGuideAction;
+            const check = document.getElementById('functionGuideDisable');
+            if(type && check?.checked) setFunctionGuideDisabled(type, true);
+            closeFunctionGuide();
+            if(!type || !action) return;
+
+            if(type === 'google') searchGoogleCore();
+            else if(type === 'trim') openManualEditor();
+            else if(type === 'save') salvarVinculoFirebase();
+        }
+
         async function pasteFromClipboard() {
             try {
                 if (navigator.clipboard && navigator.clipboard.readText) {
@@ -1380,7 +1761,13 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
 
         let googleSearchUrlAtual = "";
 
-        function searchGoogle() {
+
+        function handleGoogleAction(){
+            if (isFunctionGuideDisabled('google')) { searchGoogleCore(); return; }
+            openFunctionGuide('google', 'action');
+        }
+
+        function searchGoogleCore() {
             const q = document.getElementById('searchInput').value.trim();
             if (!q) { alert('Digite um termo para pesquisar.'); return; }
             googleSearchUrlAtual = `https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}`;
@@ -1528,6 +1915,12 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
         // ===============================================
         // SALVAMENTO AUTOMATIZADO VIA PONTE (FIRESTORE)
         // ===============================================
+
+        function handleSaveAction(){
+            if (isFunctionGuideDisabled('save')) { salvarVinculoFirebase(); return; }
+            openFunctionGuide('save', 'action');
+        }
+
         async function salvarVinculoFirebase() {
             if (!userIdUrl || !topicoIdUrl) {
                 alert("Erro: Parâmetros do usuário ou tópico ausentes na URL.");
@@ -1673,6 +2066,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
         let selectedWord = null;
         let selectedWords = [];
         let selectedCell = null;
+        let selectedCells = [];
         let cutWordBuffer = null;
         let lastSelectedIndex = null;
 
@@ -1683,12 +2077,289 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
         let historyApplying = false;
         const MAX_EDITOR_HISTORY = 80;
 
+        // Remove artefatos de links/citações que podem vir ao copiar respostas
+        // de buscas/IA (Google), mantendo o texto útil para a edição.
+        function limparLinksParaEditor(texto) {
+            let t = String(texto || '').replace(/\u00a0/g, ' ');
+
+            // 1) Remove links Markdown/HTML preservando o texto que ficou fora do link.
+            t = t.replace(/\[[^\]]{0,200}\]\(\s*(?:https?:\/\/|www\.|\/goto\?)[^)]{1,2000}\)/gi, ' ');
+            t = t.replace(/<a\b[^>]*>.*?<\/a>/gis, ' ');
+
+            // 2) Google/IA frequentemente cola o redirecionamento como:
+            //    "(/goto? url=CAES... ... ,)"
+            //    podendo haver espaços entre "?", "url=" e os fragmentos do token.
+            //    Neste formato, o fechamento ')' é o delimitador do artefato.
+            t = t.replace(/\(\s*\/goto\?\s*url\s*=.*?\)/gis, ' ');
+            t = t.replace(/\/goto\?\s*url\s*=.*?(?=[\)\]\n]|$)/gis, ' ');
+
+            // 3) Algumas cópias trazem somente o /goto? sem parênteses.
+            t = t.replace(/\/goto\?\s*url\s*=\s*[^\n\]]{1,2000}/gi, (m) => {
+                // Não engole uma frase normal se o token não tiver aparência de URL.
+                return /CAES|AVX|AF|AO/i.test(m) ? ' ' : m;
+            });
+
+            // 4) URLs convencionais.
+            t = t.replace(/https?:\/\/[^\s<>)\]]+/gi, ' ');
+            t = t.replace(/\bwww\.[^\s<>)\]]+/gi, ' ');
+
+            // 5) Citações numéricas típicas das respostas de IA/Google: [1], [2], etc.
+            t = t.replace(/(^|[\n\s])\[\d{1,3}\](?=($|[\s.,;:!?]))/g, '$1');
+
+            // 6) Identificadores técnicos que podem restar após a retirada dos links.
+            t = t.replace(/\b(?:CAES|AF|AO|AVX)=[A-Za-z0-9_-]{8,}\b/gi, ' ');
+
+            // 7) Remove resíduos técnicos claramente não textuais entre parênteses,
+            // sem tocar nas palavras do conteúdo.
+            t = t.replace(/\(\s*(?:CAES|AVX|AF|AO)[^)]{2,1200}\)/gi, ' ');
+
+            // Normalização de espaços; não altera letras nem remove caracteres de palavras.
+            t = t.replace(/[ \t]+/g, ' ');
+            t = t.replace(/ *\n[ \t]*/g, '\n');
+            t = t.replace(/\n{3,}/g, '\n\n');
+            return t.trim();
+        }
+
+        // Regras finais para as células do editor:
+        // 1) uma célula termina em ponto final quando o ponto encerra uma palavra ou um número completo;
+        // 2) ponto dentro de número/referência numérica nunca encerra a célula;
+        // 3) vírgula nunca inicia nem termina uma célula;
+        // 4) vírgulas duplicadas ou colocadas após um ponto são removidas/normalizadas.
+        // =======================================================
+        // REGRAS REFINADAS PARA CÉLULAS DO EDITOR
+        // =======================================================
+        function normalizarPontuacaoAntesDoEditor(texto) {
+            let t = String(texto || '').replace(/\u00a0/g, ' ');
+
+            // Espaços e quebras de linha: o editor trabalha por períodos.
+            // Uma quebra simples de linha não deve, sozinha, criar uma célula.
+            t = t.replace(/\r\n?/g, '\n');
+            t = t.replace(/[ \t]+/g, ' ');
+            t = t.replace(/ *\n+ */g, ' ');
+
+            // Vírgulas residuais: nunca no início/fim, nunca após pontuação,
+            // nunca duplicadas. Uma vírgula normal entre palavras é preservada.
+            t = t.replace(/,{2,}/g, ',');
+            t = t.replace(/([.!?;:])\s*,+/g, '$1');
+            t = t.replace(/(^|\s),+(?=\S)/g, '$1');
+            t = t.replace(/(\S),+\s*$/g, '$1');
+            t = t.replace(/([)\]}])\s*,+/g, '$1');
+            t = t.replace(/\s+,\s+/g, ', ');
+            t = t.replace(/\s+([,;:!?])/g, '$1');
+
+            return t.trim();
+        }
+
+        function separarTransicaoMaiuscula(texto) {
+            // Corrige palavras realmente coladas, sem espaço e sem pontuação.
+            // Ex.: "HipótesesBaixo" -> "Hipóteses Baixo".
+            // Não usa maiúscula após espaço como critério de nova célula.
+            return String(texto || '').replace(
+                /([a-zà-öø-ÿ])([A-ZÀ-ÖØ-Ý])/g,
+                '$1 $2'
+            );
+        }
+
+        function palavraAnterior(texto, i, start) {
+            let j = i - 1;
+            while (j >= start && /\s/.test(texto[j])) j--;
+            let end = j;
+            while (j >= start && /[A-Za-zÀ-ÖØ-öø-ÿ0-9]/.test(texto[j])) j--;
+            return end >= j + 1 ? texto.slice(j + 1, end + 1) : '';
+        }
+
+        function ehAbreviacaoNaoFinal(palavra) {
+            const p = String(palavra || '').toLowerCase().replace(/[.]$/,'');
+            // Abreviações que frequentemente terminam com ponto, mas não
+            // representam fim de período. Inclui explicitamente "Art.".
+            const comuns = new Set([
+                'art','arts','inc','ltd','etc','ex','obs','p','pp','pag','pág',
+                'n','nº','no','núm','dr','dra','sr','sra','prof','profa',
+                'av','avda','rod','gov','dep','cel','gen','cap','min','pres',
+                'tel','ref','aprox','vol','ed','ed.','fig','cf','id','item'
+            ]);
+            return comuns.has(p);
+        }
+
+        function ehPontoFinalValido(t, i, start) {
+            // Reticências nunca são três pontos independentes.
+            if (t[i + 1] === '.' || t[i - 1] === '.') return false;
+
+            const prev = t[i - 1] || '';
+            const next = t[i + 1] || '';
+
+            // Ponto entre dígitos: referência, número, data ou valor numérico.
+            if (/\d/.test(prev) && /\d/.test(next)) return false;
+
+            // Ponto imediatamente antes de número: não interrompe referência.
+            if (/\d/.test(next) && /[A-Za-zÀ-ÖØ-öø-ÿ0-9]/.test(prev)) return false;
+
+            // O ponto pode encerrar um período quando vem depois de uma palavra
+            // OU depois de um número completo. O que não pode ocorrer é o ponto
+            // estar no meio de um número (ex.: 14.133, 130.984,20).
+            let j = i - 1;
+            while (j >= start && /\s/.test(t[j])) j--;
+            if (j < start || !/[A-Za-zÀ-ÖØ-öø-ÿ0-9]/.test(t[j])) return false;
+
+            const palavra = palavraAnterior(t, i, start);
+
+            // Abreviações como "Art." não encerram o período.
+            if (/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(t[j]) && ehAbreviacaoNaoFinal(palavra)) return false;
+
+            // Se o ponto estiver dentro de um domínio/endereço, por exemplo
+            // "compras.gov.br", o trecho seguinte costuma começar com minúscula.
+            // Nesses casos não há separação.
+            if (/^[a-zà-öø-ÿ]/.test(next)) return false;
+
+            return true;
+        }
+
+        function separarEmCelulasPorPeriodos(texto) {
+            const t = String(texto || '').trim();
+            if (!t) return [];
+
+            const cells = [];
+            let start = 0;
+
+            for (let i = 0; i < t.length; i++) {
+                const ch = t[i];
+
+                // Interrogação e exclamação encerram imediatamente o período.
+                if (ch === '?' || ch === '!') {
+                    let fragment = t.slice(start, i + 1).trim();
+                    fragment = fragment.replace(/^[,\s]+/, '').replace(/[\s,]+$/, '');
+                    if (fragment) cells.push(fragment);
+                    start = i + 1;
+                    while (start < t.length && /\s/.test(t[start])) start++;
+                    i = start - 1;
+                    continue;
+                }
+
+                if (ch !== '.') continue;
+                if (!ehPontoFinalValido(t, i, start)) continue;
+
+                let fragment = t.slice(start, i + 1).trim();
+                fragment = fragment.replace(/^[,\s]+/, '').replace(/[\s,]+$/, '');
+                if (fragment) cells.push(fragment);
+
+                start = i + 1;
+                while (start < t.length && /\s/.test(t[start])) start++;
+                i = start - 1;
+            }
+
+            let tail = t.slice(start).trim();
+            tail = tail.replace(/^[,\s]+/, '').replace(/[\s,]+$/, '');
+            if (tail) cells.push(tail);
+
+            return cells.map(c => {
+                // Nunca deixar vírgula perdida no começo/fim.
+                c = c.replace(/^[,\s]+/, '').replace(/[\s,]+$/, '');
+                c = c.replace(/([.!?;:])\s*,+/g, '$1');
+                c = c.replace(/,{2,}/g, ',');
+                c = c.replace(/\s+/g, ' ').trim();
+                return c;
+            }).filter(Boolean);
+        }
+
+        // =======================================================
+        // QUEBRA VISUAL APÓS DOIS-PONTOS
+        // =======================================================
+        // Em textos copiados, é comum haver construções como:
+        // "Princípio: Legalidade e eficiência."
+        // Quando a palavra seguinte começa com maiúscula e não parece
+        // ser um nome próprio reconhecível, o editor cria uma nova linha
+        // DENTRO DA MESMA CÉLULA. Não cria uma nova célula.
+        function ehNomeProprioReconhecivel(palavra) {
+            const base = String(palavra || '')
+                .replace(/^[\(\[\{\"“”'’]+/, '')
+                .replace(/[.,;!?):\]\}]+$/g, '')
+                .trim()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+
+            if (!base) return false;
+
+            // Nomes próprios e entidades muito comuns em textos brasileiros.
+            // A lista é deliberadamente conservadora: se não for reconhecido,
+            // a regra após ':' pode criar apenas uma quebra de linha, nunca
+            // uma nova célula.
+            const nomes = new Set([
+                'joao','maria','jose','ana','carlos','paulo','pedro','lucas','gabriel',
+                'fernando','marcos','rafael','bruno','ricardo','roberto','eduardo',
+                'antonio','antonio','francisco','luiz','luis','andre','andrea','beatriz',
+                'camila','carolina','daniela','juliana','patricia','renata','sofia',
+                'helena','larissa','isabela','isabel','gabriela','mariana','leticia',
+                'brasil','brasilia','portugal','franca','inglaterra','espanha','italia',
+                'argentina','chile','uruguai','america','europa','asia','africa',
+                'amazonas','bahia','ceara','goias','minas','pernambuco','parana','paraiba',
+                'sao','paulo','rio','janeiro','recife','salvador','natal','fortaleza',
+                'google','microsoft','apple','amazon','meta','openai','chatgpt',
+                'nasa','ibm','tesla','unesco','onu','inss','stf','stj','tcu','tse',
+                'constituição','constituicao','codigo','código','lei','decreto'
+            ]);
+
+            return nomes.has(base);
+        }
+
+        function aplicarQuebraAposDoisPontos(texto) {
+            let t = String(texto || '');
+
+            // Não transforma ':' em nova célula. Apenas insere uma quebra de
+            // linha quando, após os dois-pontos, aparece uma palavra iniciada
+            // por maiúscula que não foi reconhecida como nome próprio.
+            return t.replace(/:([\s]+)([A-ZÀ-ÖØ-Ý][A-Za-zÀ-ÖØ-öø-ÿ-]*)/g, (match, espacos, palavra) => {
+                return ehNomeProprioReconhecivel(palavra) ? match : ':\n' + palavra;
+            });
+        }
+
+        function separarCelulasPorMaiuscula(celula) {
+            const t = String(celula || '');
+            if (!t.trim()) return [];
+            const partes = [];
+            let inicio = 0;
+
+            // Regra estrutural: palavra iniciada por letra maiúscula inicia
+            // outra célula. Nomes próprios podem ser recompostos com Mesclar.
+            const re = /\s+(?=[A-ZÀ-ÖØ-Ý][A-Za-zÀ-ÖØ-öø-ÿ-]*)/g;
+            let m;
+            while ((m = re.exec(t)) !== null) {
+                const trecho = t.slice(inicio, m.index).trim();
+                if (trecho) partes.push(trecho);
+                inicio = m.index + m[0].length;
+            }
+            const final = t.slice(inicio).trim();
+            if (final) partes.push(final);
+            return partes;
+        }
+
+        function prepararCelulasDoEditor(frases) {
+            const texto = Array.isArray(frases)
+                ? frases.map(v => String(v ?? '').trim()).filter(Boolean).join(' ')
+                : String(frases || '');
+
+            const normalizado = normalizarPontuacaoAntesDoEditor(
+                separarTransicaoMaiuscula(texto)
+            );
+            const celulasPorPeriodo = separarEmCelulasPorPeriodos(normalizado);
+            const celulas = celulasPorPeriodo.flatMap(separarCelulasPorMaiuscula);
+
+            return celulas.map(aplicarQuebraAposDoisPontos);
+        }
+
+
+        function handleManualEditorAction(){
+            if (isFunctionGuideDisabled('trim')) { openManualEditor(); return; }
+            openFunctionGuide('trim', 'action');
+        }
+
         function openManualEditor() {
             const editorList = document.getElementById('editor-list');
             const text = rawTextArea.value;
             if (!text.trim()) { alert('A caixa de entrada de texto está vazia.'); return; }
 
-            const frasesAparadas = sent_tokenize_browser(text);
+            const textoLimpo = limparLinksParaEditor(text);
+            const frasesAparadas = prepararCelulasDoEditor(textoLimpo);
             editorList.innerHTML = '';
             editorUndoStack = [];
             editorRedoStack = [];
@@ -1697,6 +2368,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             selectedWord = null;
             selectedWords = [];
             selectedCell = null;
+            selectedCells = [];
             cutWordBuffer = null;
             lastSelectedIndex = null;
             updateWordToolbar();
@@ -1709,7 +2381,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
         function captureEditorState() {
             return Array.from(document.querySelectorAll('#editor-list .editor-item')).map(item => {
                 const p = item.querySelector('p');
-                return garantirEspacos(p ? p.textContent : '');
+                return normalizarTextoEditor(p ? p.textContent : '');
             });
         }
 
@@ -1745,6 +2417,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             selectedWords = [];
             selectedWord = null;
             selectedCell = null;
+            selectedCells = [];
             lastSelectedIndex = null;
             editorList.innerHTML = '';
             state.forEach(text => addEditorCell(text));
@@ -1779,13 +2452,19 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
 
         function renderWordModules(p, texto) {
             p.innerHTML = '';
-            const palavras = tokenizeWords(texto);
-            palavras.forEach((palavra, index) => {
+            const partes = String(texto ?? '').split(/(\s+)/).filter(Boolean);
+            let wordIndex = 0;
+            partes.forEach(parte => {
+                if (/^\s+$/.test(parte)) {
+                    // Preserva quebras de linha inseridas manualmente; espaços continuam normais.
+                    p.appendChild(document.createTextNode(parte.replace(/\t/g, ' ')));
+                    return;
+                }
                 const span = document.createElement('span');
                 span.className = 'word-module';
-                span.textContent = palavra;
-                span.dataset.word = palavra;
-                span.dataset.index = index;
+                span.textContent = parte;
+                span.dataset.word = parte;
+                span.dataset.index = wordIndex++;
                 span.title = 'Clique para selecionar • Ctrl/Cmd para selecionar várias • Shift para selecionar um intervalo';
                 span.addEventListener('click', (event) => {
                     event.preventDefault();
@@ -1804,7 +2483,6 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
                 });
                 span.draggable = true;
                 p.appendChild(span);
-                if (index < palavras.length - 1) p.appendChild(document.createTextNode(' '));
             });
             restoreSelectionForCell(p.closest('.editor-item'));
         }
@@ -1817,6 +2495,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             const cell = span.closest('.editor-item');
             if (!cell) return;
             selectedCell = cell;
+            selectedCells = [cell];
             document.querySelectorAll('.editor-item.selected-cell').forEach(el => el.classList.remove('selected-cell'));
             cell.classList.add('selected-cell');
 
@@ -1859,14 +2538,171 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             selectedWord = selectedWords[0] || null;
         }
 
-        function selectCell(itemDiv) {
+        function updateSelectedCellsUI() {
             document.querySelectorAll('.editor-item.selected-cell').forEach(el => el.classList.remove('selected-cell'));
+            selectedCells = selectedCells.filter(cell => cell && document.body.contains(cell));
+            selectedCells.forEach(cell => cell.classList.add('selected-cell'));
+            selectedCell = selectedCells[selectedCells.length - 1] || null;
+
+            const canMerge = selectedCells.length === 2;
+            document.querySelectorAll('.editor-item .editor-actions .merge').forEach(btn => {
+                btn.disabled = !canMerge;
+            });
+            const mergeToolbar = document.getElementById('mergeCellsBtn');
+            if (mergeToolbar) mergeToolbar.disabled = !canMerge;
+        }
+
+        function selectCell(itemDiv, event = {}) {
+            if (!itemDiv) return;
+            const multi = !!(event.ctrlKey || event.metaKey);
+
+            if (multi) {
+                const idx = selectedCells.indexOf(itemDiv);
+                if (idx >= 0) selectedCells.splice(idx, 1);
+                else selectedCells.push(itemDiv);
+            } else {
+                selectedCells = [itemDiv];
+            }
+
+            selectedWords = [];
+            selectedWord = null;
+            lastSelectedIndex = null;
+            updateSelectedCellsUI();
+            updateWordToolbar();
+        }
+
+        function mergeSelectedCells() {
+            const beforeState = beginEditorHistory();
+            const cells = selectedCells.filter(cell => cell && document.body.contains(cell));
+            if (cells.length !== 2) {
+                alert('Selecione exatamente duas células com Ctrl (Windows) ou Cmd (Mac) e depois clique em 🔗 Mesclar células.');
+                return;
+            }
+
+            const ordered = cells.slice().sort((a, b) => {
+                const pos = a.compareDocumentPosition(b);
+                return (pos & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+            });
+            const first = ordered[0];
+            const second = ordered[1];
+            const p1 = first.querySelector('p');
+            const p2 = second.querySelector('p');
+            if (!p1 || !p2) return;
+
+            const t1 = normalizarTextoEditor(p1.textContent);
+            const t2 = normalizarTextoEditor(p2.textContent);
+            const merged = [t1, t2].filter(Boolean).join(' ');
+
+            renderWordModules(p1, merged);
+            second.remove();
+
+            selectedCells = [first];
+            selectedCell = first;
+            selectedWords = [];
+            selectedWord = null;
+            lastSelectedIndex = null;
+            updateSelectedCellsUI();
+            recordEditorHistory(beforeState);
+            updateWordToolbar();
+            first.scrollIntoView({ block: 'nearest' });
+        }
+
+        function getCaretCharacterOffsetWithin(element) {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount || !element.contains(selection.anchorNode)) return null;
+            const range = selection.getRangeAt(0).cloneRange();
+            range.selectNodeContents(element);
+            range.setEnd(selection.anchorNode, selection.anchorOffset);
+            return range.toString().length;
+        }
+
+        function setCaretCharacterOffset(element, offset) {
+            if (!element || offset == null) return;
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+            let node;
+            let remaining = Math.max(0, offset);
+
+            while ((node = walker.nextNode())) {
+                const len = node.nodeValue?.length || 0;
+                if (remaining <= len) {
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+                    range.setStart(node, remaining);
+                    range.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    return;
+                }
+                remaining -= len;
+            }
+
+            // Fallback: final do último nó de texto.
+            const last = element.lastChild;
+            if (last) {
+                const range = document.createRange();
+                const selection = window.getSelection();
+                if (last.nodeType === Node.TEXT_NODE) range.setStart(last, last.nodeValue.length);
+                else range.selectNodeContents(last), range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+
+        function normalizarTextoEditor(texto) {
+            return String(texto ?? '')
+                .replace(/\r\n?/g, '\n')
+                .replace(/[^\S\n]+/g, ' ')
+                .replace(/[ \t]+\n/g, '\n')
+                .replace(/\n[ \t]+/g, '\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function getCaretOrSelectionOffset(element) {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount || !element.contains(selection.anchorNode)) return null;
+            const range = selection.getRangeAt(0).cloneRange();
+            range.selectNodeContents(element);
+            range.setEnd(selection.anchorNode, selection.anchorOffset);
+            return range.toString().length;
+        }
+
+        function insertManualLineBreak(itemDiv, p) {
+            const beforeState = beginEditorHistory();
+            if (!p) return;
+            selectCell(itemDiv);
+
+            let offset = getCaretOrSelectionOffset(p);
+            const selected = getSelectedWordsInCell(itemDiv);
+
+            if (selected.length) {
+                const first = selected.slice().sort((a, b) => {
+                    const walker = document.createTreeWalker(p, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+                    const order = new Map();
+                    let n, i = 0;
+                    while ((n = walker.nextNode())) order.set(n, i++);
+                    return (order.get(a) ?? 0) - (order.get(b) ?? 0);
+                })[0];
+                if (first) {
+                    const range = document.createRange();
+                    range.selectNodeContents(p);
+                    range.setEnd(first, 0);
+                    offset = range.toString().length;
+                }
+            }
+
+            const text = normalizarTextoEditor(p.textContent);
+            if (offset == null) offset = text.length;
+            offset = Math.max(0, Math.min(offset, text.length));
+
+            const novoTexto = normalizarTextoEditor(text.slice(0, offset)) + '\n' + normalizarTextoEditor(text.slice(offset));
+            renderWordModules(p, novoTexto);
+            selectedWords = [];
+            selectedWord = null;
             selectedCell = itemDiv;
             itemDiv.classList.add('selected-cell');
-            if (!getSelectedWordsInCell(itemDiv).length) {
-                selectedWords = [];
-                selectedWord = null;
-            }
+            requestAnimationFrame(() => setCaretCharacterOffset(p, Math.min(offset + 1, novoTexto.length)));
+            recordEditorHistory(beforeState);
             updateWordToolbar();
         }
 
@@ -1877,7 +2713,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             itemDiv.className = 'editor-item';
             itemDiv.addEventListener('click', (event) => {
                 if (!event.target.closest('.word-module') && !event.target.closest('.editor-actions')) {
-                    selectCell(itemDiv);
+                    selectCell(itemDiv, event);
                     clearWordSelection();
                 }
             });
@@ -1905,15 +2741,25 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             p.addEventListener('input', () => {
                 clearTimeout(p._wordTimer);
                 const oldSelected = [...getSelectedWordsInCell(itemDiv)].map(w => w.dataset.word);
+                const caretOffset = getCaretCharacterOffsetWithin(p);
+
                 p._wordTimer = setTimeout(() => {
-                    const txt = garantirEspacos(p.textContent);
+                    const txt = normalizarTextoEditor(p.textContent);
                     renderWordModules(p, txt);
+
                     if (oldSelected.length) {
                         const all = Array.from(p.querySelectorAll('.word-module'));
                         selectedWords = all.filter(w => oldSelected.includes(w.dataset.word));
                         selectedWord = selectedWords[0] || null;
                         updateWordToolbar();
                     }
+
+                    // A reconstrução dos módulos de palavras substitui o conteúdo do <p>.
+                    // Restauramos o cursor exatamente na posição em que o usuário estava digitando.
+                    if (document.activeElement === p || p.contains(document.activeElement)) {
+                        requestAnimationFrame(() => setCaretCharacterOffset(p, caretOffset));
+                    }
+
                     const before = p._historyBefore;
                     p._historyBefore = null;
                     commitTypingHistory(before);
@@ -1924,11 +2770,16 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             actions.className = 'editor-actions';
             const addBtn = document.createElement('button'); addBtn.className = 'insert'; addBtn.textContent = '+'; addBtn.title = 'Criar uma célula em branco abaixo';
             addBtn.onclick = e => { e.stopPropagation(); const novo = addEditorCell('', itemDiv); novo.querySelector('p').focus(); selectCell(novo); };
+            const lineBreakBtn = document.createElement('button'); lineBreakBtn.className = 'line-break'; lineBreakBtn.textContent = '↵'; lineBreakBtn.title = 'Inserir quebra de linha nesta célula';
+            lineBreakBtn.onclick = e => { e.stopPropagation(); insertManualLineBreak(itemDiv, p); };
             const upBtn = document.createElement('button'); upBtn.className = 'move'; upBtn.textContent = '↑'; upBtn.title = 'Mover célula para cima'; upBtn.onclick = e => { e.stopPropagation(); moveEditorCell(itemDiv, -1); };
             const downBtn = document.createElement('button'); downBtn.className = 'move'; downBtn.textContent = '↓'; downBtn.title = 'Mover célula para baixo'; downBtn.onclick = e => { e.stopPropagation(); moveEditorCell(itemDiv, 1); };
+            const mergeBtn = document.createElement('button'); mergeBtn.className = 'merge'; mergeBtn.textContent = '🔗'; mergeBtn.title = 'Mesclar as duas células selecionadas';
+            mergeBtn.disabled = true;
+            mergeBtn.onclick = e => { e.stopPropagation(); mergeSelectedCells(); };
             const deleteBtn = document.createElement('button'); deleteBtn.className = 'delete'; deleteBtn.textContent = '×'; deleteBtn.title = 'Excluir célula';
-            deleteBtn.onclick = e => { e.stopPropagation(); const beforeState = beginEditorHistory(); selectedWords = selectedWords.filter(w => w.closest('.editor-item') !== itemDiv); if (selectedCell === itemDiv) selectedCell = null; itemDiv.remove(); if (!document.querySelector('#editor-list .editor-item')) { const wasReady = historyReady; historyReady = false; addEditorCell(''); historyReady = wasReady; } recordEditorHistory(beforeState); updateWordToolbar(); };
-            actions.append(addBtn, upBtn, downBtn, deleteBtn);
+            deleteBtn.onclick = e => { e.stopPropagation(); const beforeState = beginEditorHistory(); selectedWords = selectedWords.filter(w => w.closest('.editor-item') !== itemDiv); selectedCells = selectedCells.filter(c => c !== itemDiv); if (selectedCell === itemDiv) selectedCell = null; itemDiv.remove(); if (!document.querySelector('#editor-list .editor-item')) { const wasReady = historyReady; historyReady = false; addEditorCell(''); historyReady = wasReady; } recordEditorHistory(beforeState); updateWordToolbar(); };
+            actions.append(addBtn, lineBreakBtn, upBtn, downBtn, mergeBtn, deleteBtn);
             itemDiv.append(p, actions);
             if (afterElement && afterElement.parentNode) afterElement.parentNode.insertBefore(itemDiv, afterElement.nextSibling); else editorList.appendChild(itemDiv);
             recordEditorHistory(beforeState);
@@ -1954,15 +2805,25 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
         }
 
         function updateWordToolbar() {
-            const toolbar = document.getElementById('word-toolbar'); const label = document.getElementById('selected-word-label');
-            const pasteBtn = document.getElementById('pasteCutBtn'); const moveCellBtn = document.getElementById('moveCellBtn');
+            const toolbar = document.getElementById('word-toolbar');
+            const label = document.getElementById('selected-word-label');
+            const pasteBtn = document.getElementById('pasteCutBtn');
+            const moveCellBtn = document.getElementById('moveCellBtn');
+            const mergeBtn = document.getElementById('mergeCellsBtn');
             const selected = getSelectedWords();
             if (!toolbar) return;
+
             label.textContent = selected.length
-                ? (selected.length === 1 ? `Selecionada: “${selected[0].textContent}”` : `Selecionadas: ${selected.map(w => w.textContent).join(' ')}`)
-                : (cutWordBuffer ? 'Conteúdo pronto para colar' : 'Nenhuma palavra selecionada');
+                ? (selected.length === 1
+                    ? `Selecionada: “${selected[0].textContent}”`
+                    : `Selecionadas: ${selected.map(w => w.textContent).join(' ')}`)
+                : (selectedCells.length === 2
+                    ? 'Duas células selecionadas — prontas para mesclar'
+                    : (cutWordBuffer ? 'Conteúdo pronto para colar' : 'Nenhuma palavra selecionada'));
+
             if (pasteBtn) pasteBtn.style.display = 'inline-flex';
             if (moveCellBtn) moveCellBtn.style.display = 'inline-flex';
+            if (mergeBtn) mergeBtn.disabled = selectedCells.length !== 2;
         }
 
         async function copySelectedWords() {
@@ -1992,7 +2853,7 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
 
         function normalizeCellFromModules(cell) {
             if (!cell) return; const p = cell.querySelector('p'); if (!p) return;
-            const text = Array.from(p.querySelectorAll('.word-module')).map(w => w.textContent).join(' ');
+            const text = normalizarTextoEditor(p.textContent);
             renderWordModules(p, text);
         }
 
@@ -2074,7 +2935,9 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             selectedWord = null;
             selectedWords = [];
             selectedCell = null;
+            selectedCells = [];
             cutWordBuffer = null;
+            updateSelectedCellsUI();
             updateWordToolbar();
         }
 
@@ -2083,14 +2946,15 @@ A missão do Curiosity é determinar se Marte já teve as condições ambientais
             const paragraphs = [];
             items.forEach(item => {
                 const p = item.querySelector('p');
-                const textoLimpo = garantirEspacos(p ? p.textContent : '');
+                const textoLimpo = normalizarTextoEditor(p ? p.textContent : '');
                 if (textoLimpo) paragraphs.push(textoLimpo);
             });
 
-            // Cada célula é preservada como um parágrafo no texto resultante.
+            // Cada célula continua sendo um período/bloco. Quebras de linha manuais
+            // permanecem dentro da mesma célula e são preservadas no texto salvo.
             const combinedText = paragraphs.join('\n\n');
             rawTextArea.value = combinedText;
-            sentences = paragraphs.map(s => garantirEspacos(s)).filter(Boolean);
+            sentences = paragraphs.map(s => s.trim()).filter(Boolean);
             currentIndex = 0;
 
             closeManualEditor();
