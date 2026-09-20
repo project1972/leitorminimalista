@@ -806,9 +806,9 @@
         .google-capture-bar {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
             gap: 10px;
-            padding: 10px 12px;
+            padding: 8px 12px;
             border-top: 1px solid var(--border-color);
             background: var(--card-bg-color);
             font-size: 13px;
@@ -816,17 +816,6 @@
 
         .google-capture-bar button {
             flex: 0 0 auto;
-        }
-
-        .google-copy-instruction {
-            color: var(--text-color);
-            line-height: 1.45;
-            background: #f8fafc;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .google-copy-instruction strong {
-            color: var(--heading-color);
         }
 
         @media (max-width: 720px) {
@@ -1021,7 +1010,26 @@
         .flow-guide-target{outline:3px solid #60a5fa !important;outline-offset:3px !important;box-shadow:0 0 0 6px rgba(96,165,250,.18),0 8px 20px rgba(30,64,175,.16) !important;position:relative;z-index:5001 !important;}
         @media(max-width:600px){.flow-guide-card{width:98vw}.flow-guide-footer{flex-direction:column;align-items:stretch}.flow-guide-actions{margin-left:0}.flow-guide-actions button{flex:1;}}
 
-    </style>
+    
+        .google-inline-hint{
+            margin-top:10px;
+            padding:10px 12px;
+            border-left:4px solid #2563eb;
+            border-radius:9px;
+            background:#eff6ff;
+            color:#1e3a8a;
+            display:flex;
+            flex-direction:column;
+            gap:3px;
+            font-size:.78rem;
+            line-height:1.4;
+        }
+        .google-inline-hint span{color:#334155;}
+        .google-inline-hint strong{font-weight:850;}
+        @media(max-width:700px){
+            .google-inline-hint{font-size:.74rem;}
+        }
+</style>
 </head>
 
 <body>
@@ -1115,6 +1123,10 @@
                         <button type="button" class="function-help-btn" onclick="openFunctionGuide('google')" title="Como usar a pesquisa no Google">?</button>
                     </span>
                 </div>
+                <div id="googleInlineHint" class="google-inline-hint" role="status" aria-live="polite" style="display:none;">
+                    <strong>📋 Pesquisa aberta em uma nova aba.</strong>
+                    <span>Selecione com o mouse o trecho que deseja estudar, copie com <strong>Ctrl+C</strong>, volte para a Leitura Guiada e cole o texto na caixa de entrada.</span>
+                </div>
             </div>
         </main>
 
@@ -1143,25 +1155,6 @@
             <button type="button" class="reading-banner-close" onclick="closeReadingMode()"
                 title="Fechar modo leitura">✕</button>
             <div id="reading-text" class="reading-text"></div>
-        </div>
-    </div>
-
-    <div id="google-search-overlay" class="google-overlay" aria-hidden="true">
-        <div class="google-banner" role="dialog" aria-modal="true" aria-label="Resultados do Google">
-            <div class="google-banner-header">
-                <div class="google-banner-title" id="googleBannerTitle">Pesquisa Google</div>
-                <button type="button" class="google-banner-close" onclick="closeGoogleSearch()"
-                    title="Fechar pesquisa">✕</button>
-            </div>
-            <iframe id="googleSearchFrame" class="google-frame" title="Resultados da pesquisa Google"></iframe>
-            <div class="google-capture-bar google-copy-instruction" role="status" aria-live="polite">
-                <span><strong>📋 Como continuar:</strong> selecione com o mouse o trecho que deseja usar, pressione <strong>Ctrl+C</strong>, feche esta pesquisa e, na Leitura Guiada, clique na caixa de texto e pressione <strong>Ctrl+V</strong>.</span>
-            </div>
-            <div id="googleFallback" class="google-fallback">
-                <strong>O Google não permitiu exibir os resultados dentro desta janela.</strong>
-                <span>Você ainda pode abrir a pesquisa em uma nova aba.</span>
-                <button type="button" onclick="openGoogleExternal()">🌐 Abrir pesquisa no Google</button>
-            </div>
         </div>
     </div>
 
@@ -1694,7 +1687,7 @@
                 icon:'🌐',
                 title:'Como usar a pesquisa no Google',
                 step:'Digite o assunto e clique em “Ver resultados do Google”. Sempre que estiver disponível e for adequada ao assunto, prefira a resposta gerada pela IA do Google, a AI Overview (Visão geral da IA), como ponto de partida para o seu estudo.',
-                tip:'Na AI Overview ou em uma página dos resultados, selecione com o mouse somente o trecho que quer estudar e copie com Ctrl+C. O Alumno não fará a captura automática. Depois feche a tela do Google, volte à Leitura Guiada, clique na caixa de entrada e use Ctrl+V.',
+                tip:'Na AI Overview ou em uma página dos resultados, selecione com o mouse somente o trecho que quer estudar e copie com Ctrl+C. Depois feche a tela do Google.',
                 next:'Entendi, abrir Google'
             },
             trim: {
@@ -1825,8 +1818,7 @@
 
 
         function handleGoogleAction(){
-            if (isFunctionGuideDisabled('google')) { searchGoogleCore(); return; }
-            openFunctionGuide('google', 'action');
+            searchGoogleCore();
         }
 
         function searchGoogleCore() {
@@ -1840,29 +1832,43 @@
                 if (!atual || atual === 'Leitura Guiada') rotuloInput.value = q;
             }
 
-            googleSearchUrlAtual = `https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}`;
-            const overlay = document.getElementById('google-search-overlay');
-            const frame = document.getElementById('googleSearchFrame');
-            const title = document.getElementById('googleBannerTitle');
-            const fallback = document.getElementById('googleFallback');
-            title.textContent = `Google: ${q}`;
-            fallback.style.display = 'none';
-            frame.style.display = 'block';
-            frame.src = googleSearchUrlAtual;
-            overlay.classList.add('active');
-            overlay.setAttribute('aria-hidden', 'false');
+            googleSearchUrlAtual = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+
+            // Abre a pesquisa em outra aba. Não usa iframe, overlay nem captura automática.
+            const opened = window.open(googleSearchUrlAtual, '_blank', 'noopener,noreferrer');
+            if (!opened) {
+                // Alguns navegadores bloqueiam pop-up quando a ação não é considerada direta.
+                // Nesse caso, oferece uma navegação explícita sem criar um modal.
+                const hint = document.getElementById('googleInlineHint');
+                if (hint) {
+                    hint.style.display = 'flex';
+                    hint.innerHTML = '<strong>🌐 A pesquisa não pôde abrir em nova aba.</strong><span>Permita pop-ups para o Alumno ou <a href="' + googleSearchUrlAtual + '" target="_blank" rel="noopener noreferrer">abra a pesquisa no Google aqui</a>.</span>';
+                }
+                return;
+            }
+
+            const hint = document.getElementById('googleInlineHint');
+            if (hint) {
+                hint.style.display = 'flex';
+                hint.innerHTML = '<strong>📋 Pesquisa aberta em uma nova aba.</strong><span>Selecione com o mouse o trecho que deseja estudar, copie com <strong>Ctrl+C</strong>, volte para a Leitura Guiada e cole o texto na caixa de entrada.</span>';
+            }
+        }
+
+        // Compatibilidade com referências antigas: não captura mais a área de transferência.
+        function captureCopiedGoogleText() {
+            console.info('ALUMNO: captura automática do Google foi removida. Use Ctrl+C e depois Ctrl+V na Leitura Guiada.');
         }
 
         function closeGoogleSearch() {
-            const overlay = document.getElementById('google-search-overlay');
-            const frame = document.getElementById('googleSearchFrame');
-            overlay.classList.remove('active');
-            overlay.setAttribute('aria-hidden', 'true');
-            frame.src = 'about:blank';
+            // A pesquisa do Google agora abre em uma aba separada; não existe mais modal para fechar.
         }
 
         function openGoogleExternal() {
-            if (googleSearchUrlAtual) window.open(googleSearchUrlAtual, '_blank', 'noopener,noreferrer');
+            if (googleSearchUrlAtual) {
+                window.open(googleSearchUrlAtual, '_blank', 'noopener,noreferrer');
+                const hint = document.getElementById('googleInlineHint');
+                if (hint) hint.style.display = 'flex';
+            }
         }
 
         function escapeHtml(value) {
@@ -3057,21 +3063,10 @@
             document.getElementById('rawTextCounter').textContent = `(${rawText.length} carac.)`;
         }
 
-        // Fechar pesquisa Google ao clicar fora do banner ou pressionar Esc
-        document.addEventListener('click', (event) => {
-            const overlay = document.getElementById('google-search-overlay');
-            if (overlay && event.target === overlay) closeGoogleSearch();
-        });
+        // Escape continua disponível apenas para a edição/seleção de texto.
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                const overlay = document.getElementById('google-search-overlay');
-                if (overlay && overlay.classList.contains('active')) {
-                    closeGoogleSearch();
-                    return;
-                }
-                if (document.getElementById('manual-editor-modal')?.style.display !== 'none') {
-                    clearWordSelection();
-                }
+            if (event.key === 'Escape' && document.getElementById('manual-editor-modal')?.style.display !== 'none') {
+                clearWordSelection();
             }
         });
 
