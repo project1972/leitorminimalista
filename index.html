@@ -806,9 +806,9 @@
         .google-capture-bar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 10px;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-top: 1px solid var(--border-color);
             background: var(--card-bg-color);
             font-size: 13px;
@@ -816,6 +816,17 @@
 
         .google-capture-bar button {
             flex: 0 0 auto;
+        }
+
+        .google-copy-instruction {
+            color: var(--text-color);
+            line-height: 1.45;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .google-copy-instruction strong {
+            color: var(--heading-color);
         }
 
         @media (max-width: 720px) {
@@ -1143,9 +1154,8 @@
                     title="Fechar pesquisa">✕</button>
             </div>
             <iframe id="googleSearchFrame" class="google-frame" title="Resultados da pesquisa Google"></iframe>
-            <div class="google-capture-bar">
-                <span>Selecione no Google o trecho desejado e copie com <strong>Ctrl+C</strong>.</span>
-                <button type="button" class="success" onclick="captureCopiedGoogleText()">📥 Capturar texto copiado</button>
+            <div class="google-capture-bar google-copy-instruction" role="status" aria-live="polite">
+                <span><strong>📋 Como continuar:</strong> selecione com o mouse o trecho que deseja usar, pressione <strong>Ctrl+C</strong>, feche esta pesquisa e, na Leitura Guiada, clique na caixa de texto e pressione <strong>Ctrl+V</strong>.</span>
             </div>
             <div id="googleFallback" class="google-fallback">
                 <strong>O Google não permitiu exibir os resultados dentro desta janela.</strong>
@@ -1684,7 +1694,7 @@
                 icon:'🌐',
                 title:'Como usar a pesquisa no Google',
                 step:'Digite o assunto e clique em “Ver resultados do Google”. Sempre que estiver disponível e for adequada ao assunto, prefira a resposta gerada pela IA do Google, a AI Overview (Visão geral da IA), como ponto de partida para o seu estudo.',
-                tip:'Na AI Overview ou em uma página dos resultados, selecione com o mouse somente o trecho que quer estudar e copie com Ctrl+C. Depois feche a tela do Google.',
+                tip:'Na AI Overview ou em uma página dos resultados, selecione com o mouse somente o trecho que quer estudar e copie com Ctrl+C. O Alumno não fará a captura automática. Depois feche a tela do Google, volte à Leitura Guiada, clique na caixa de entrada e use Ctrl+V.',
                 next:'Entendi, abrir Google'
             },
             trim: {
@@ -1841,32 +1851,6 @@
             frame.src = googleSearchUrlAtual;
             overlay.classList.add('active');
             overlay.setAttribute('aria-hidden', 'false');
-        }
-
-        async function captureCopiedGoogleText() {
-            try {
-                if (!navigator.clipboard?.readText) throw new Error('Clipboard não disponível');
-                const text = (await navigator.clipboard.readText() || '').trim();
-                if (!text) {
-                    alert('Nenhum texto encontrado na área de transferência. Selecione o trecho no Google e pressione Ctrl+C primeiro.');
-                    return;
-                }
-
-                rawTextArea.value = garantirEspacos(text);
-                rawTextManuallyEditedSinceEditor = true;
-                if (lastEditorAppliedText || lastEditorAppliedCells.length) {
-                    lastEditorBaseText = rawTextArea.value;
-                    clearAppliedEditorVersion();
-                }
-                updateCounters();
-                closeGoogleSearch();
-                rawTextArea.focus();
-                rawTextArea.selectionStart = rawTextArea.value.length;
-                rawTextArea.selectionEnd = rawTextArea.value.length;
-            } catch (err) {
-                console.warn('Não foi possível capturar o texto copiado do Google:', err);
-                alert('O navegador não permitiu ler a área de transferência. Selecione o trecho no Google, pressione Ctrl+C, feche esta janela e use “Colar” na Leitura Guiada.');
-            }
         }
 
         function closeGoogleSearch() {
