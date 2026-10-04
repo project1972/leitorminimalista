@@ -17,31 +17,17 @@
         :root {
             --bg-color: #f5f7fa;
             --card-bg-color: #fff;
-            --text-color: #334155;
-            --heading-color: #0f172a;
-            --primary-color: #2563eb;
-            --primary-hover-color: #1d4ed8;
-            --secondary-color: #64748b;
-            --border-color: #dbe3ee;
+            --text-color: #374151;
+            --heading-color: #1f2937;
+            --primary-color: #6b7280;
+            --primary-hover-color: #4b5563;
+            --secondary-color: #6b7280;
+            --border-color: #d1d5db;
             --shadow-color: rgba(15, 23, 42, .05);
-            --accent-glow: rgba(37, 99, 235, .12);
-            --success-color: #059669;
+            --accent-glow: rgba(107,114,128,.12);
+            --success-color: #6b7280;
             --font-family: 'Inter', system-ui, -apple-system, sans-serif;
             --border-radius: 10px;
-        }
-
-        body.dark-mode {
-            --bg-color: #0b1320;
-            --card-bg-color: #111c2e;
-            --text-color: #cbd5e1;
-            --heading-color: #f8fafc;
-            --primary-color: #3b82f6;
-            --primary-hover-color: #60a5fa;
-            --secondary-color: #94a3b8;
-            --border-color: #243244;
-            --shadow-color: rgba(0, 0, 0, .22);
-            --accent-glow: rgba(59, 130, 246, .2);
-            --success-color: #10b981;
         }
 
         * {
@@ -50,7 +36,8 @@
 
         body {
             font-family: var(--font-family);
-            background: var(--bg-color);
+            /* Fundo dividido exatamente entre as duas colunas principais. */
+            background: linear-gradient(90deg, #e5e7eb 0%, #e5e7eb 50%, #ffffff 50%, #ffffff 100%);
             color: var(--text-color);
             margin: 0;
             padding: 14px;
@@ -63,11 +50,19 @@
             width: 100%;
             max-width: 1400px;
             display: grid;
-            grid-template-columns: 330px minmax(0, 1fr);
-            grid-template-areas: 'header header' 'input reader' 'link link';
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            grid-template-areas: 'header header' 'top-tools top-tools' 'input reader';
             gap: 12px;
             align-items: start
         }
+
+        .top-tools { grid-area: top-tools; display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch; }
+        .controls-column { grid-area: input; }
+        .reader-column { grid-area: reader; }
+
+        .top-tools > .card { min-height: 136px; height:100%; }
+        .quick-search-card .search-row input,
+        .link-card #rotuloLinkInput { height: 38px; }
 
         header {
             grid-area: header;
@@ -97,7 +92,6 @@
         }
 
         .controls-column {
-            grid-area: input;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -105,15 +99,10 @@
         }
 
         .reader-column {
-            grid-area: reader;
             display: flex;
             flex-direction: column;
             gap: 10px;
             min-width: 0
-        }
-
-        .link-card {
-            grid-area: link
         }
 
         .card {
@@ -152,8 +141,8 @@
         input:focus,
         select:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px var(--accent-glow)
+            border-color: #9ca3af;
+            box-shadow: 0 0 0 2px rgba(107,114,128,.12)
         }
 
         #rawText {
@@ -261,24 +250,6 @@
 
         input:checked+.slider:before {
             transform: translateX(18px)
-        }
-
-        #darkModeToggle:not(:checked)+.slider:after {
-            content: '☀️';
-            position: absolute;
-            top: 50%;
-            right: 4px;
-            transform: translateY(-50%);
-            font-size: 10px
-        }
-
-        #darkModeToggle:checked+.slider:after {
-            content: '🌙';
-            position: absolute;
-            top: 50%;
-            left: 4px;
-            transform: translateY(-50%);
-            font-size: 10px
         }
 
         #autoModeSwitch:checked+.slider {
@@ -517,8 +488,8 @@
         }
 
         .editor-item.selected-cell {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px var(--accent-glow)
+            border-color: #9ca3af;
+            box-shadow: 0 0 0 2px rgba(107,114,128,.12)
         }
 
         .editor-item p {
@@ -542,8 +513,8 @@
         .word-module {
             display: inline-block;
             color: #111;
-            background: rgba(59, 130, 246, .10);
-            border: 1px solid rgba(59, 130, 246, .10);
+            background: rgba(107,114,128,.10);
+            border: 1px solid rgba(107,114,128,.10);
             border-radius: 5px;
             padding: 1px 3px;
             margin: 1px 1px;
@@ -552,28 +523,28 @@
         }
 
         .word-module:nth-child(6n+2) {
-            background: rgba(16, 185, 129, .10);
-            border-color: rgba(16, 185, 129, .10)
+            background: rgba(107,114,128,.10);
+            border-color: rgba(107,114,128,.10)
         }
 
         .word-module:nth-child(6n+3) {
-            background: rgba(245, 158, 11, .11);
-            border-color: rgba(245, 158, 11, .11)
+            background: rgba(107,114,128,.10);
+            border-color: rgba(107,114,128,.10)
         }
 
         .word-module:nth-child(6n+4) {
-            background: rgba(139, 92, 246, .10);
-            border-color: rgba(139, 92, 246, .10)
+            background: rgba(107,114,128,.10);
+            border-color: rgba(107,114,128,.10)
         }
 
         .word-module:nth-child(6n+5) {
-            background: rgba(236, 72, 153, .09);
-            border-color: rgba(236, 72, 153, .09)
+            background: rgba(107,114,128,.09);
+            border-color: rgba(107,114,128,.09)
         }
 
         .word-module:nth-child(6n) {
-            background: rgba(14, 165, 233, .10);
-            border-color: rgba(14, 165, 233, .10)
+            background: rgba(107,114,128,.10);
+            border-color: rgba(107,114,128,.10)
         }
 
         .word-module:hover {
@@ -582,7 +553,7 @@
 
         .word-module.selected-word {
             outline: 2px solid var(--primary-color);
-            background: rgba(37, 99, 235, .18)
+            background: rgba(107,114,128,.18)
         }
 
         .editor-actions {
@@ -608,19 +579,19 @@
         }
 
         .editor-actions .line-break {
-            background: #1e3a5f
+            background: #6b7280
         }
 
         .editor-actions .line-break:hover {
-            background: #17304f
+            background: #4b5563
         }
 
         .editor-actions .merge-next {
-            background: #6b46c1
+            background: #6b7280
         }
 
         .editor-actions .merge-next:hover:not(:disabled) {
-            background: #5736a0
+            background: #4b5563
         }
 
         .editor-actions .merge-next:disabled {
@@ -837,9 +808,10 @@
         }
 
         @media(max-width:900px) {
+            body { background: #f5f7fa; }
             .container {
                 grid-template-columns: 1fr;
-                grid-template-areas: 'header' 'input' 'reader' 'link'
+                grid-template-areas: 'header' 'top-tools' 'input' 'reader'
             }
 
             .reader-container #output {
@@ -854,6 +826,8 @@
             .link-actions {
                 min-width: 0
             }
+
+            .top-tools { grid-template-columns: 1fr; }
 
             .google-banner {
                 width: 98vw;
@@ -902,25 +876,25 @@
            ======================================================= */
         .function-help-btn{
             width:27px;height:27px;padding:0;border-radius:50%;
-            background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;
+            background:#f3f4f6;color:#374151;border:1px solid #d1d5db;
             font-size:12px;font-weight:800;display:inline-flex;
             align-items:center;justify-content:center;
         }
-        .function-help-btn:hover{background:#e0e7ff;color:#312e81;transform:none}
+        .function-help-btn:hover{background:#e5e7eb;color:#374151;transform:none}
         .function-help-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 
         .merge-instruction {
             margin: 10px 15px 0;
             padding: 10px 12px;
-            border: 1px solid #93c5fd;
+            border: 1px solid #d1d5db;
             border-radius: 10px;
-            background: linear-gradient(135deg, rgba(37,99,235,.10), rgba(109,40,217,.10));
-            color: #1e3a8a;
+            background: linear-gradient(135deg, rgba(107,114,128,.10), rgba(107,114,128,.08));
+            color: #4b5563;
             font-size: 12px;
             line-height: 1.45;
             font-weight: 650;
         }
-        .merge-instruction strong { color: #312e81; }
+        .merge-instruction strong { color: #374151; }
 
         .function-guide-overlay{
             position:fixed;inset:0;z-index:5100;display:none;align-items:center;justify-content:center;
@@ -930,38 +904,38 @@
         .function-guide-overlay.active{display:flex}
         .function-guide-card{
             width:min(560px,94vw);background:var(--card-bg-color);
-            border:1px solid #a5b4fc;border-radius:16px;
+            border:1px solid #d1d5db;border-radius:16px;
             box-shadow:0 28px 90px rgba(15,23,42,.30);overflow:hidden;
         }
         .function-guide-head{
             display:flex;align-items:center;gap:10px;padding:13px 15px;
-            background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(109,40,217,.10));
-            border-bottom:1px solid #e0e7ff;
+            background:linear-gradient(135deg,rgba(107,114,128,.12),rgba(107,114,128,.08));
+            border-bottom:1px solid #e5e7eb;
         }
         .function-guide-icon{
             width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
-            background:linear-gradient(135deg,#2563eb,#6d28d9);color:#fff;font-size:18px;
+            background:linear-gradient(135deg,#6b7280,#6b7280);color:#fff;font-size:18px;
         }
-        .function-guide-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4338ca}
+        .function-guide-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4b5563}
         .function-guide-title{margin:2px 0 0;font-size:16px;color:var(--heading-color)}
         .function-guide-close{
-            margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid #cbd5e1;
-            background:var(--bg-color);color:#475569;font-size:18px;cursor:pointer;
+            margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid #d1d5db;
+            background:var(--bg-color);color:#4b5563;font-size:18px;cursor:pointer;
         }
         .function-guide-body{padding:15px}
         .function-guide-step{
             display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;
-            padding:12px;border:1px solid #dbeafe;border-radius:12px;background:#f8fbff;
+            padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;
         }
         .function-guide-num{
             width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
-            background:#1e3a8a;color:#fff;font-weight:800;font-size:12px;
+            background:#4b5563;color:#fff;font-weight:800;font-size:12px;
         }
         .function-guide-step strong{display:block;color:var(--heading-color);font-size:13px;margin-bottom:4px}
         .function-guide-step span{display:block;color:var(--text-color);font-size:12px;line-height:1.55}
         .function-guide-tip{
-            margin-top:10px;padding:10px 11px;border:1px dashed #a5b4fc;border-radius:10px;
-            background:rgba(224,231,255,.45);font-size:11px;line-height:1.5;color:#334155
+            margin-top:10px;padding:10px 11px;border:1px dashed #d1d5db;border-radius:10px;
+            background:rgba(229,231,235,.55);font-size:11px;line-height:1.5;color:#374151
         }
         .function-guide-footer{
             display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -973,7 +947,7 @@
         .function-guide-actions{display:flex;gap:6px;margin-left:auto}
         .function-guide-actions button{min-width:110px}
         .function-guide-primary{
-            background:linear-gradient(135deg,#2563eb,#6d28d9)!important;
+            background:linear-gradient(135deg,#6b7280,#6b7280)!important;
         }
         @media(max-width:600px){
             .function-guide-card{width:98vw}
@@ -988,43 +962,43 @@
            ======================================================= */
         .flow-guide-overlay{position:fixed;inset:0;z-index:5000;display:none;background:rgba(15,23,42,.50);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:14px;}
         .flow-guide-overlay.active{display:flex;}
-        .flow-guide-card{width:min(620px,94vw);background:var(--card-bg-color);border:1px solid #93c5fd;border-radius:16px;box-shadow:0 26px 80px rgba(15,23,42,.28);overflow:hidden;}
-        .flow-guide-head{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid #dbeafe;background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(30,64,175,.08));}
-        .flow-guide-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#1e3a8a;color:#fff;font-size:18px;box-shadow:0 6px 16px rgba(30,58,138,.22);}
-        .flow-guide-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1d4ed8;}
+        .flow-guide-card{width:min(620px,94vw);background:var(--card-bg-color);border:1px solid #d1d5db;border-radius:16px;box-shadow:0 26px 80px rgba(15,23,42,.28);overflow:hidden;}
+        .flow-guide-head{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid #e5e7eb;background:linear-gradient(135deg,rgba(107,114,128,.12),rgba(75,85,99,.08));}
+        .flow-guide-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#4b5563;color:#fff;font-size:18px;box-shadow:0 6px 16px rgba(75,85,99,.16);}
+        .flow-guide-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;}
         .flow-guide-title{margin:2px 0 0;font-size:16px;color:var(--heading-color);}
-        .flow-guide-close{margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid #cbd5e1;background:var(--bg-color);color:#475569;cursor:pointer;font-size:18px;}
+        .flow-guide-close{margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid #d1d5db;background:var(--bg-color);color:#4b5563;cursor:pointer;font-size:18px;}
         .flow-guide-body{padding:15px;}
         .flow-guide-progress{display:flex;gap:5px;margin-bottom:12px;}
-        .flow-guide-progress span{height:4px;flex:1;border-radius:99px;background:#dbeafe;}
-        .flow-guide-progress span.active{background:#1d4ed8;}
-        .flow-guide-step{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:12px;border:1px solid #dbeafe;border-radius:12px;background:rgba(239,246,255,.68);}
-        .flow-guide-step-num{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#1e3a8a;color:#fff;font-weight:800;font-size:12px;}
+        .flow-guide-progress span{height:4px;flex:1;border-radius:99px;background:#e5e7eb;}
+        .flow-guide-progress span.active{background:#4b5563;}
+        .flow-guide-step{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:rgba(243,244,246,.9);}
+        .flow-guide-step-num{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#4b5563;color:#fff;font-weight:800;font-size:12px;}
         .flow-guide-step strong{display:block;color:var(--heading-color);font-size:13px;margin-bottom:3px;}
         .flow-guide-step span{display:block;color:var(--text-color);font-size:12px;line-height:1.52;}
-        .flow-guide-tip{margin-top:10px;padding:10px 11px;border:1px dashed #93c5fd;border-radius:10px;background:rgba(219,234,254,.42);font-size:11px;line-height:1.5;color:#334155;}
+        .flow-guide-tip{margin-top:10px;padding:10px 11px;border:1px dashed #d1d5db;border-radius:10px;background:rgba(229,231,235,.55);font-size:11px;line-height:1.5;color:#374151;}
         .flow-guide-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 15px;border-top:1px solid var(--border-color);}
         .flow-guide-check{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--secondary-color);cursor:pointer;}
         .flow-guide-actions{display:flex;gap:6px;margin-left:auto;}
         .flow-guide-actions button{min-width:92px;}
-        .flow-guide-target{outline:3px solid #60a5fa !important;outline-offset:3px !important;box-shadow:0 0 0 6px rgba(96,165,250,.18),0 8px 20px rgba(30,64,175,.16) !important;position:relative;z-index:5001 !important;}
+        .flow-guide-target{outline:3px solid #9ca3af !important;outline-offset:3px !important;box-shadow:0 0 0 6px rgba(107,114,128,.15),0 8px 20px rgba(75,85,99,.12) !important;position:relative;z-index:5001 !important;}
         @media(max-width:600px){.flow-guide-card{width:98vw}.flow-guide-footer{flex-direction:column;align-items:stretch}.flow-guide-actions{margin-left:0}.flow-guide-actions button{flex:1;}}
 
     
         .google-inline-hint{
             margin-top:10px;
             padding:10px 12px;
-            border-left:4px solid #2563eb;
+            border-left:4px solid #6b7280;
             border-radius:9px;
-            background:#eff6ff;
-            color:#1e3a8a;
+            background:#f3f4f6;
+            color:#4b5563;
             display:flex;
             flex-direction:column;
             gap:3px;
             font-size:.78rem;
             line-height:1.4;
         }
-        .google-inline-hint span{color:#334155;}
+        .google-inline-hint span{color:#374151;}
         .google-inline-hint strong{font-weight:850;}
         @media(max-width:700px){
             .google-inline-hint{font-size:.74rem;}
@@ -1037,80 +1011,13 @@
         <header>
             <h1>Leitura <span>Guiada</span></h1>
             <div class="header-controls">
+                <button type="button" id="advancedToggleBtn" onclick="toggleAdvancedFunctions()" title="Mostrar outras funções">⚙ Mais funções</button>
                 <button type="button" onclick="openFlowGuide()" title="Como usar a Leitura Guiada">❔ Como usar</button>
-                <button type="button" onclick="toggleReadingMode()" title="Abrir modo leitura">📖 Modo Leitura</button>
-                <label class="switch" title="Alternar Modo Escuro">
-                    <input type="checkbox" id="darkModeToggle"><span class="slider"></span>
-                </label>
+                
             </div>
         </header>
 
-        <aside class="controls-column">
-            <div class="card">
-                <h3>1. Entrada e preparação</h3>
-                <label for="rawText">Texto original <span id="rawTextCounter" style="font-weight:400"></span></label>
-                <textarea id="rawText" placeholder="Cole ou digite seu texto aqui..."
-                    oninput="updateCounters()"></textarea>
-                <div class="button-group">
-                    <button onclick="copyRawText()">📑 Copiar</button>
-                    <button onclick="pasteFromClipboard()">📋 Colar</button>
-                    <span class="function-help-row">
-                        <button id="manualEditorBtn" onclick="handleManualEditorAction()">✂️ Aparar e organizar</button>
-                        <button type="button" class="function-help-btn" onclick="openFunctionGuide('trim')" title="Como usar Aparar e organizar">?</button>
-                    </span>
-                    <button onclick="clearRawText()" class="secondary">🗑️ Limpar</button>
-                </div>
-                <div style="margin-top:10px">
-                    <label for="summaryPercent">Proporção do resumo (% de frases)</label>
-                    <input type="number" id="summaryPercent" value="100" min="5" max="100" step="5">
-                </div>
-                <button id="generateBtn" onclick="generateSentences()" style="width:100%;margin-top:2px">📝 Resumir e iniciar
-                    leitura</button>
-            </div>
-
-            <div class="card">
-                <h3>2. Leitura e voz</h3>
-                <label for="voiceSelect">Voz selecionada</label>
-                <select id="voiceSelect"></select>
-                <div class="config-group" style="margin-top:7px">
-                    <label style="font-weight:600">Leitura automática</label>
-                    <label class="switch" style="margin-left:auto"><input type="checkbox" id="autoModeSwitch"
-                            onclick="toggleAutoMode()"><span class="slider"></span></label>
-                </div>
-                <div class="config-group">
-                    <label style="flex:1">Velocidade<input type="number" id="voiceRate" value="1" min="0.1" max="3"
-                            step="0.1"></label>
-                    <label style="flex:1">Tamanho<input type="number" id="fontSize" value="27" min="14"
-                            max="60"></label>
-                </div>
-                <div class="config-group">
-                    <label style="flex:1">Cor da fonte<input type="color" id="fontColor" value="#0f172a"></label>
-                    <label style="flex:1">Tipografia<select id="fontFamily">
-                            <option value="Inter, sans-serif">Inter</option>
-                            <option value="Georgia, serif">Georgia</option>
-                            <option value="Arial, sans-serif">Arial</option>
-                            <option value="Roboto Mono, monospace">Roboto Mono</option>
-                        </select></label>
-                </div>
-            </div>
-        </aside>
-
-        <main class="reader-column">
-            <div class="reader-container">
-                <div class="reader-stage">
-                    <div class="reader-status"><span id="readingPosition">Pronto para leitura</span><span
-                            id="readingHint">Cole o texto e clique em Resumir.</span></div>
-                    <div id="output">Bem-vindo ao Leitura Guiada! Cole um texto e clique em Resumir.</div>
-                </div>
-                <div class="controls-vertical" aria-label="Controles de leitura">
-                    <button id="prevBtn" onclick="prevSentence()" title="Anterior">⏮️</button>
-                    <button id="playPauseBtn" onclick="playPauseToggle()" title="Reproduzir/Pausar">▶️</button>
-                    <button id="stopBtn" onclick="stopReading()" title="Parar">⏹️</button>
-                    <button id="nextBtn" onclick="nextSentence()" title="Próxima">⏭️</button>
-                    <button id="voiceToggleBtn" onclick="toggleVoice()" title="Voz On/Off">🗣️</button>
-                </div>
-            </div>
-
+        <div class="top-tools">
             <div class="card quick-search-card">
                 <h3>🔎 Pesquisa rápida</h3>
                 <div class="search-row">
@@ -1128,8 +1035,6 @@
                     <span>Selecione com o mouse o trecho que deseja estudar, copie com <strong>Ctrl+C</strong>, volte para a Leitura Guiada e cole o texto na caixa de entrada.</span>
                 </div>
             </div>
-        </main>
-
         <div class="card link-card">
             <h3>🔗 Salvar no Alumno</h3>
             <div class="link-layout">
@@ -1148,6 +1053,80 @@
                 </div>
             </div>
         </div>
+        </div>
+
+        <aside class="controls-column">
+            <div class="card">
+                <h3>1. Entrada e preparação</h3>
+                <label for="rawText">Texto original <span id="rawTextCounter" style="font-weight:400"></span></label>
+                <textarea id="rawText" placeholder="Cole ou digite seu texto aqui..."
+                    oninput="updateCounters()"></textarea>
+                <div class="advanced-functions" id="advancedFunctions" style="display:none">
+                    <div class="button-group">
+                        <button onclick="copyRawText()">📑 Copiar</button>
+                        <button onclick="pasteFromClipboard()">📋 Colar</button>
+                        <span class="function-help-row">
+                            <button id="manualEditorBtn" onclick="handleManualEditorAction()">✂️ Aparar e organizar</button>
+                            <button type="button" class="function-help-btn" onclick="openFunctionGuide('trim')" title="Como usar Aparar e organizar">?</button>
+                        </span>
+                        <button onclick="clearRawText()" class="secondary">🗑️ Limpar</button>
+                    </div>
+                </div>
+                <div style="margin-top:10px">
+                    <label for="summaryPercent">Proporção do resumo (% de frases)</label>
+                    <input type="number" id="summaryPercent" value="100" min="5" max="100" step="5">
+                </div>
+                <button id="generateBtn" onclick="generateSentences()" style="width:100%;margin-top:2px">📝 Resumir e iniciar
+                    leitura</button>
+            </div>
+
+            <div class="card advanced-functions" id="voiceFunctions" style="display:none">
+                <h3>2. Leitura e voz</h3>
+                <label for="voiceSelect">Voz selecionada</label>
+                <select id="voiceSelect"></select>
+                <div class="config-group" style="margin-top:7px">
+                    <label style="font-weight:600">Leitura automática</label>
+                    <label class="switch" style="margin-left:auto"><input type="checkbox" id="autoModeSwitch"
+                            onclick="toggleAutoMode()"><span class="slider"></span></label>
+                </div>
+                <div class="config-group">
+                    <label style="flex:1">Velocidade<input type="number" id="voiceRate" value="1" min="0.1" max="3"
+                            step="0.1"></label>
+                    <label style="flex:1">Tamanho<input type="number" id="fontSize" value="27" min="14"
+                            max="60"></label>
+                </div>
+                <div class="config-group">
+                    <label style="flex:1">Cor da fonte<input type="color" id="fontColor" value="#1f2937"></label>
+                    <label style="flex:1">Tipografia<select id="fontFamily">
+                            <option value="Inter, sans-serif">Inter</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Roboto Mono, monospace">Roboto Mono</option>
+                        </select></label>
+                </div>
+            </div>
+        </aside>
+
+        <main class="reader-column">
+            <div class="reader-container">
+                <div class="reader-stage">
+                    <div class="reader-status"><span id="readingPosition">Pronto para leitura</span><span
+                            id="readingHint">Cole o texto e clique em Resumir.</span></div>
+                    <div id="output">Bem-vindo ao Leitura Guiada! Cole um texto e clique em Resumir.</div>
+                </div>
+                <div class="controls-vertical" aria-label="Controles de leitura" style="display:none">
+                    <button id="prevBtn" onclick="prevSentence()" title="Anterior">⏮️</button>
+                    <button id="playPauseBtn" onclick="playPauseToggle()" title="Reproduzir/Pausar">▶️</button>
+                    <button id="stopBtn" onclick="stopReading()" title="Parar">⏹️</button>
+                    <button id="nextBtn" onclick="nextSentence()" title="Próxima">⏭️</button>
+                    <button id="voiceToggleBtn" onclick="toggleVoice()" title="Voz On/Off">🗣️</button>
+                </div>
+            </div>
+
+
+        </main>
+
+
     </div>
 
     <div id="reading-overlay" class="reading-overlay" aria-hidden="true">
@@ -1293,27 +1272,6 @@
         const leituraIdParam =
             urlParams.get('id');
         document.addEventListener('DOMContentLoaded', () => {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const body = document.body;
-            const fontColorInput = document.getElementById('fontColor');
-
-            function applyTheme(isDark) {
-                if (isDark) {
-                    body.classList.add('dark-mode');
-                    if (fontColorInput.value === '#0f172a') fontColorInput.value = '#f8fafc';
-                } else {
-                    body.classList.remove('dark-mode');
-                    if (fontColorInput.value === '#f8fafc') fontColorInput.value = '#0f172a';
-                }
-            }
-
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (darkModeToggle) {
-                darkModeToggle.checked = prefersDark;
-                applyTheme(prefersDark);
-                darkModeToggle.addEventListener('change', () => applyTheme(darkModeToggle.checked));
-            }
-
             loadVoices();
             verificarContextoUrl();
             // O guia aparece automaticamente somente na primeira utilização; pode ser reaberto em “Como usar”.
@@ -1356,6 +1314,14 @@
             }
         });
 
+
+        function toggleAdvancedFunctions() {
+            const blocks = document.querySelectorAll('.advanced-functions');
+            const hidden = Array.from(blocks).some(el => el.style.display === 'none');
+            blocks.forEach(el => { el.style.display = hidden ? '' : 'none'; });
+            const btn = document.getElementById('advancedToggleBtn');
+            if (btn) btn.textContent = hidden ? '✕ Ocultar funções' : '⚙ Mais funções';
+        }
 
         function toggleReadingMode() {
             const overlay = document.getElementById('reading-overlay');
@@ -1780,26 +1746,85 @@
 
         document.addEventListener('keydown', handleGuideEnter, true);
 
+        function formatarColagemGoogle(texto, html) {
+            texto = String(texto || '');
+            html = String(html || '');
+            let resultado = '';
+
+            if (html) {
+                try {
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    const blocos = doc.body.querySelectorAll('p, div, section, article, blockquote, h1, h2, h3, h4, h5, h6, li, br');
+                    const partes = [];
+
+                    if (blocos.length) {
+                        blocos.forEach(el => {
+                            if (el.tagName === 'BR') {
+                                partes.push('');
+                                return;
+                            }
+                            const t = (el.textContent || '').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
+                            if (t) partes.push(el.tagName === 'LI' ? '• ' + t : t);
+                        });
+                        resultado = partes.join('\n\n');
+                    }
+                } catch (_) {
+                    resultado = '';
+                }
+            }
+
+            if (!resultado.trim()) resultado = texto;
+
+            return garantirEspacos(resultado)
+                .replace(/\r\n?/g, '\n')
+                .split('\n')
+                .map(function (linha) { return linha.replace(/[ \t]+/g, ' ').trim(); })
+                .join('\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function aplicarColagemGoogle(texto, html) {
+            rawTextArea.value = formatarColagemGoogle(texto, html);
+            rawTextManuallyEditedSinceEditor = true;
+            if (lastEditorAppliedText || lastEditorAppliedCells.length) {
+                lastEditorBaseText = rawTextArea.value;
+                clearAppliedEditorVersion();
+            }
+            updateCounters();
+        }
+
         async function pasteFromClipboard() {
             try {
+                if (navigator.clipboard && navigator.clipboard.read) {
+                    const items = await navigator.clipboard.read();
+                    let texto = '';
+                    let html = '';
+
+                    for (const item of items) {
+                        if (item.types && item.types.indexOf('text/plain') !== -1) {
+                            texto = await (await item.getType('text/plain')).text();
+                        }
+                        if (item.types && item.types.indexOf('text/html') !== -1) {
+                            html = await (await item.getType('text/html')).text();
+                        }
+                    }
+
+                    if (texto || html) {
+                        aplicarColagemGoogle(texto, html);
+                        return;
+                    }
+                }
+
                 if (navigator.clipboard && navigator.clipboard.readText) {
-                    const text = await navigator.clipboard.readText();
-                    rawTextArea.value = garantirEspacos(text);
-                    rawTextManuallyEditedSinceEditor = true;
-                    if (lastEditorAppliedText || lastEditorAppliedCells.length) { lastEditorBaseText = rawTextArea.value; clearAppliedEditorVersion(); }
-                    updateCounters();
+                    aplicarColagemGoogle(await navigator.clipboard.readText(), '');
                 } else {
-                    throw new Error("API Clipboard não suportada neste contexto.");
+                    throw new Error('API Clipboard não suportada neste contexto.');
                 }
             } catch (err) {
                 console.warn('Uso de prompt alternativo para colar:', err);
-                const userText = prompt("Cole seu texto aqui (Ctrl+V):");
-                if (userText !== null) {
-                    rawTextArea.value = garantirEspacos(userText);
-                    rawTextManuallyEditedSinceEditor = true;
-                    if (lastEditorAppliedText || lastEditorAppliedCells.length) { lastEditorBaseText = rawTextArea.value; clearAppliedEditorVersion(); }
-                    updateCounters();
-                }
+                const userText = prompt('Cole seu texto aqui (Ctrl+V):');
+                if (userText !== null) aplicarColagemGoogle(userText, '');
             }
         }
 
@@ -2414,6 +2439,14 @@
         // inicia um novo conteúdo e, portanto, encerra a continuidade da
         // última sessão do editor.
         rawTextArea.addEventListener('input', markRawTextAsNewContent);
+
+        rawTextArea.addEventListener('paste', function (event) {
+            const html = event.clipboardData ? event.clipboardData.getData('text/html') : '';
+            const texto = event.clipboardData ? event.clipboardData.getData('text/plain') : '';
+            if (!html && !texto) return;
+            event.preventDefault();
+            aplicarColagemGoogle(texto, html);
+        });
 
         function openManualEditor() {
             const editorList = document.getElementById('editor-list');
