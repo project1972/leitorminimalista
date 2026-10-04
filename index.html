@@ -150,6 +150,90 @@
             resize: vertical
         }
 
+        /* Modo de edição rápida: foco exclusivo em inserir quebras de linha. */
+        .text-edit-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 6px 0 8px;
+        }
+
+        .text-edit-toolbar .edit-status {
+            font-size: 11px;
+            color: var(--secondary-color);
+        }
+
+        #rawText.editing-mode {
+            caret-color: #2563eb;
+            height: 520px;
+            min-height: 520px;
+            font-size: 22px;
+            line-height: 1.65;
+            padding: 16px 18px;
+            background: #fff;
+            color: #1f2937;
+            border-color: #9ca3af;
+            box-shadow: 0 0 0 3px rgba(107,114,128,.10);
+        }
+
+        #insertLineBreakBtn {
+            background: #4b5563;
+        }
+
+        .text-edit-actions {
+            align-items: center;
+        }
+
+        .text-edit-actions-top {
+            justify-content: flex-start !important;
+            margin: 0 0 8px;
+            flex-wrap: wrap;
+        }
+
+        .text-edit-actions-top button {
+            white-space: nowrap;
+        }
+
+        #undoTextEditBtn {
+            margin-left: auto;
+        }
+
+        @media(max-width:600px) {
+            .text-edit-actions-top {
+                gap: 6px;
+            }
+
+            .text-edit-actions-top button {
+                padding: 7px 8px;
+                font-size: 11px;
+            }
+        }
+
+        /* O cursor permanece visível mesmo com a caixa em modo somente leitura. */
+        #rawText.editing-mode {
+            caret-color: #2563eb !important;
+        }
+
+        #rawText.editing-mode:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.14);
+        }
+
+        #insertLineBreakBtn:hover {
+            background: #374151;
+        }
+
+        @media(max-width:600px) {
+            #rawText.editing-mode {
+                height: 430px;
+                min-height: 430px;
+                font-size: 20px;
+                line-height: 1.6;
+            }
+        }
+
         .button-group {
             display: flex;
             flex-wrap: wrap;
@@ -317,6 +401,95 @@
         .paragraph-nav:disabled {
             opacity: .25;
             cursor: default;
+        }
+
+        /* Modo leitura ampliado acionado pelas setas. */
+        .reader-column.reader-reading-mode {
+            position: fixed;
+            inset: 10px;
+            z-index: 2500;
+            padding: 10px;
+            background: #fff;
+            overflow: auto;
+        }
+
+        .reader-column.reader-reading-mode .reader-container {
+            height: 100%;
+            min-height: calc(100vh - 20px);
+        }
+
+        .reader-column.reader-reading-mode .reader-stage {
+            height: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reader-column.reader-reading-mode .reader-status {
+            flex: 0 0 auto;
+        }
+
+        .reader-column.reader-reading-mode .reader-navigation {
+            flex: 1 1 0;
+            min-height: 0;
+            grid-template-columns: 1fr;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reader-column.reader-reading-mode .paragraph-nav {
+            position: absolute;
+            top: 12px;
+            z-index: 5;
+        }
+
+        .reader-column.reader-reading-mode #prevBtn {
+            left: 8px;
+        }
+
+        .reader-column.reader-reading-mode #nextBtn {
+            right: 8px;
+        }
+
+        .reader-column.reader-reading-mode #output {
+            min-height: 0;
+            height: auto;
+            font-size: clamp(28px, 3vw, 42px);
+            padding: 42px 7vw 72px;
+            width: 100%;
+            overflow: hidden;
+            align-items: flex-start;
+
+            /* No modo leitura o texto fica livre sobre o fundo branco.
+               A moldura pertence somente à caixa normal, não a cada página. */
+            background: #fff;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .reader-exit-mode {
+            display: none;
+            align-self: center;
+            margin-top: 10px;
+        }
+
+        .reader-column.reader-reading-mode .reader-exit-mode {
+            display: inline-flex;
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            left: auto;
+            transform: none;
+            z-index: 9999;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, .20);
+        }
+
+        .reader-column.reader-reading-mode {
+            overflow: hidden;
         }
 
         .reader-container #output {
@@ -1071,7 +1244,7 @@
                 </div>
                 <div id="googleInlineHint" class="google-inline-hint" role="status" aria-live="polite" style="display:none;">
                     <strong>📋 Pesquisa aberta em uma nova aba.</strong>
-                    <span>Selecione com o mouse o trecho que deseja estudar, copie com <strong>Ctrl+C</strong>, volte para a Leitura Guiada e cole o texto na caixa de entrada.</span>
+                    <span>Selecione com o mouse o trecho que deseja estudar e copie com <strong>Ctrl+C</strong>. Ao voltar para a Leitura Guiada, o texto será colocado automaticamente na caixa de entrada.</span>
                 </div>
             </div>
         <div class="card link-card">
@@ -1098,8 +1271,17 @@
             <div class="card">
                 <h3>1. Entrada e preparação</h3>
                 <label for="rawText">Texto original <span id="rawTextCounter" style="font-weight:400"></span></label>
+                <div class="text-edit-toolbar">
+                    <span id="textEditStatus" class="edit-status">Edite apenas quando precisar inserir quebras de linha.</span>
+                    <button type="button" id="editTextBtn" onclick="toggleTextEditMode()">✏️ Editar</button>
+                </div>
+                <div id="textEditActions" class="text-edit-toolbar text-edit-actions-top" style="display:none;justify-content:flex-start">
+                    <button type="button" id="finishTextEditTopBtn" onclick="generateSentences()" class="success">✓ Concluir a edição</button>
+                    <button type="button" id="insertLineBreakBtn" onclick="insertTextLineBreak()">↵ Quebra de linha</button>
+                    <button type="button" id="undoTextEditBtn" onclick="undoTextEdit()" class="secondary" disabled>↶ Desfazer</button>
+                </div>
                 <textarea id="rawText" placeholder="Cole ou digite seu texto aqui..."
-                    oninput="updateCounters()"></textarea>
+                    oninput="handleRawTextInput()"></textarea>
                 <div class="advanced-functions" id="advancedFunctions" style="display:none">
                     <div class="button-group">
                         <button onclick="copyRawText()">📑 Copiar</button>
@@ -1111,11 +1293,7 @@
                         <button onclick="clearRawText()" class="secondary">🗑️ Limpar</button>
                     </div>
                 </div>
-                <div style="margin-top:10px">
-                    <label for="summaryPercent">Proporção do resumo (% de frases)</label>
-                    <input type="number" id="summaryPercent" value="100" min="5" max="100" step="5">
-                </div>
-                <button id="generateBtn" onclick="generateSentences()" style="width:100%;margin-top:2px">📝 Resumir e iniciar
+                <button id="generateBtn" onclick="generateSentences()" style="width:100%;margin-top:10px">📝 Iniciar
                     leitura</button>
             </div>
 
@@ -1150,12 +1328,13 @@
             <div class="reader-container">
                 <div class="reader-stage">
                     <div class="reader-status"><span id="readingPosition">Pronto para leitura</span><span
-                            id="readingHint">Cole o texto e clique em Resumir.</span></div>
+                            id="readingHint">Cole o texto e clique em Iniciar leitura.</span></div>
                     <div class="reader-navigation" aria-label="Navegação entre parágrafos">
                         <button type="button" id="prevBtn" class="paragraph-nav" onclick="prevSentence()" title="Parágrafo anterior" aria-label="Parágrafo anterior">‹</button>
                         <div id="output">Bem-vindo ao Leitura Guiada! Cole um texto e clique em Resumir.</div>
                         <button type="button" id="nextBtn" class="paragraph-nav" onclick="nextSentence()" title="Próximo parágrafo" aria-label="Próximo parágrafo">›</button>
                     </div>
+                    <button type="button" id="readerExitModeBtn" class="reader-exit-mode secondary" onclick="exitReaderReadingMode()">✕ Sair do modo leitura</button>
                 </div>
             </div>
 
@@ -1309,15 +1488,11 @@
             urlParams.get('id');
         document.addEventListener('DOMContentLoaded', () => {
             loadVoices();
+            const initialRawText = document.getElementById('rawText');
+            if (initialRawText) initialRawText.readOnly = false;
             verificarContextoUrl();
             // O guia aparece automaticamente somente na primeira utilização; pode ser reaberto em “Como usar”.
             if (!isFlowGuideDisabled()) setTimeout(() => openFlowGuide(false), 500);
-
-            // Deixar como padrão o percentual de 100%
-            const summaryPercentInput = document.getElementById('summaryPercent');
-            if (summaryPercentInput) {
-                summaryPercentInput.value = "100";
-            }
 
             if (leituraIdParam) {
 
@@ -1344,8 +1519,12 @@
 
             } else {
 
-                // Acesso avulso, sem texto: começa com a caixa de entrada vazia.
+                // Acesso avulso: começa realmente vazio.
+                // Um rascunho antigo não deve reaparecer ao abrir o aplicativo,
+                // pois pode ser texto de um teste anterior. O salvamento automático
+                // continua funcionando durante a edição.
                 document.getElementById('rawText').value = '';
+                clearTextEditDraft();
                 updateCounters();
             }
         });
@@ -1522,7 +1701,7 @@
         function gerarResumo(textoOriginal) {
             const frases = sent_tokenize_browser(textoOriginal.trim());
             const totalFrases = frases.length;
-            const percentual = document.getElementById('summaryPercent')?.value || 100;
+            const percentual = 100;
             let numFrasesDesejadas = Math.max(1, Math.ceil(totalFrases * (percentual / 100)));
             if (totalFrases === 0) return "Texto muito curto.";
 
@@ -1571,6 +1750,180 @@
             selectedVoice = nomeSelecionado === "" ? null : voices.find(v => v.name === nomeSelecionado);
         });
 
+        // =======================================================
+        // EDIÇÃO RÁPIDA DO TEXTO DE ENTRADA
+        // =======================================================
+        const TEXT_EDIT_DRAFT_PREFIX = 'leitura_guiada_text_edit_draft_v1_';
+        let textEditMode = false;
+        let textEditUndoStack = [];
+        const MAX_TEXT_EDIT_UNDO = 50;
+
+        function resetTextEditUndo() {
+            textEditUndoStack = [];
+            updateTextEditUndoButton();
+        }
+
+        function pushTextEditUndoState() {
+            const current = rawTextArea.value || '';
+            if (textEditUndoStack.length && textEditUndoStack[textEditUndoStack.length - 1].value === current) return;
+            textEditUndoStack.push({
+                value: current,
+                start: rawTextArea.selectionStart ?? current.length,
+                end: rawTextArea.selectionEnd ?? current.length
+            });
+            if (textEditUndoStack.length > MAX_TEXT_EDIT_UNDO) textEditUndoStack.shift();
+            updateTextEditUndoButton();
+        }
+
+        function updateTextEditUndoButton() {
+            const btn = document.getElementById('undoTextEditBtn');
+            if (btn) btn.disabled = textEditUndoStack.length === 0;
+        }
+
+        function undoTextEdit() {
+            if (!textEditMode || !textEditUndoStack.length) return;
+            const previous = textEditUndoStack.pop();
+            rawTextArea.value = previous.value;
+            const pos = Math.min(previous.start, rawTextArea.value.length);
+            rawTextArea.focus({ preventScroll: true });
+            rawTextArea.setSelectionRange(pos, pos);
+            handleRawTextInput();
+            updateTextEditUndoButton();
+        }
+
+        function keepEditCursorVisible(position) {
+            rawTextArea.focus({ preventScroll: true });
+            const pos = Math.max(0, Math.min(position, rawTextArea.value.length));
+            rawTextArea.setSelectionRange(pos, pos);
+        }
+
+        function getTextEditDraftKey() {
+            const context = [userIdUrl || 'local', topicoIdUrl || 'sem-topico', leituraIdAtual || 'nova']
+                .map(v => String(v).replace(/[^a-zA-Z0-9_-]/g, '_'))
+                .join('_');
+            return TEXT_EDIT_DRAFT_PREFIX + context;
+        }
+
+        function saveTextEditDraft() {
+            try {
+                localStorage.setItem(getTextEditDraftKey(), rawTextArea.value || '');
+                localStorage.setItem(getTextEditDraftKey() + '_updated', String(Date.now()));
+            } catch (_) {}
+        }
+
+        function restoreTextEditDraft() {
+            try {
+                const saved = localStorage.getItem(getTextEditDraftKey());
+                if (saved && !rawTextArea.value.trim()) {
+                    rawTextArea.value = saved;
+                    updateCounters();
+                }
+            } catch (_) {}
+        }
+
+        function clearTextEditDraft() {
+            try {
+                localStorage.removeItem(getTextEditDraftKey());
+                localStorage.removeItem(getTextEditDraftKey() + '_updated');
+            } catch (_) {}
+        }
+
+        function toggleTextEditMode(force) {
+            textEditMode = typeof force === 'boolean' ? force : !textEditMode;
+
+            // Ao iniciar a edição, a caixa volta a aceitar digitação normalmente,
+            // permitindo que o teclado seja ativado e o cursor fique visível.
+            rawTextArea.readOnly = false;
+            rawTextArea.classList.toggle('editing-mode', textEditMode);
+            rawTextArea.setAttribute('aria-expanded', textEditMode ? 'true' : 'false');
+
+            const btn = document.getElementById('editTextBtn');
+            const actions = document.getElementById('textEditActions');
+            const status = document.getElementById('textEditStatus');
+
+            if (btn) btn.textContent = textEditMode ? '✓ Editando' : '✏️ Editar';
+            if (actions) actions.style.display = textEditMode ? 'flex' : 'none';
+            if (status) status.textContent = textEditMode
+                ? 'Modo edição: selecione o ponto e use “Inserir quebra de linha”.'
+                : 'Edite apenas quando precisar inserir quebras de linha.';
+
+            if (textEditMode) {
+                // Foco imediato para mostrar o cursor e permitir a abertura do teclado.
+                resetTextEditUndo();
+                const pos = rawTextArea.selectionStart ?? rawTextArea.value.length;
+                requestAnimationFrame(() => keepEditCursorVisible(pos));
+            } else {
+                rawTextArea.blur();
+                saveTextEditDraft();
+            }
+        }
+
+        function insertTextLineBreak() {
+            if (!textEditMode) toggleTextEditMode(true);
+            const start = rawTextArea.selectionStart ?? rawTextArea.value.length;
+            const end = rawTextArea.selectionEnd ?? start;
+            const value = rawTextArea.value;
+            pushTextEditUndoState();
+            rawTextArea.value = value.slice(0, start) + '\n' + value.slice(end);
+            const cursor = start + 1;
+            rawTextArea.selectionStart = cursor;
+            rawTextArea.selectionEnd = cursor;
+            handleRawTextInput();
+            // Mantém o ponto de edição visível.
+            keepEditCursorVisible(cursor);
+        }
+
+        // Converte o texto editado diretamente em páginas de leitura.
+        // Cada quebra de linha inserida pelo usuário define o início de uma nova página.
+        function buildReadingPagesFromEditedText(text) {
+            return String(text || '')
+                .replace(/\r\n/g, '\n')
+                .replace(/\r/g, '\n')
+                .split(/\n+/)
+                .map(p => p.trim())
+                .filter(Boolean);
+        }
+
+        function syncReadingPagesFromEditedText(preserveIndex = true) {
+            const pages = buildReadingPagesFromEditedText(rawTextArea.value);
+            if (!pages.length) return false;
+
+            const previousIndex = currentIndex;
+            sentences = pages;
+            currentIndex = preserveIndex
+                ? Math.min(previousIndex, sentences.length - 1)
+                : 0;
+            showCurrent();
+            return true;
+        }
+
+        function handleRawTextInput() {
+            updateCounters();
+            saveTextEditDraft();
+
+            // Durante a edição, o leitor acompanha imediatamente o mesmo texto
+            // e as mesmas quebras que estão na caixa de texto.
+            if (textEditMode && sentences.length) {
+                syncReadingPagesFromEditedText(true);
+            }
+        }
+
+        function generateLinkTitleFromText(text) {
+            const words = String(text || '')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .split(' ')
+                .filter(Boolean);
+            return words.slice(0, 7).join(' ') || 'Leitura Guiada';
+        }
+
+        function updateLinkTitleFromText(text) {
+            const input = document.getElementById('rotuloLinkInput');
+            if (!input) return;
+            const title = generateLinkTitleFromText(text);
+            input.value = title;
+        }
+
         function generateSentences() {
             stopReading();
             const text = (rawTextArea.value || '').trim();
@@ -1580,25 +1933,26 @@
                 return;
             }
 
-            // Gera o conteúdo de leitura e mantém cada frase como uma unidade
-            // navegável. A visualização é atualizada imediatamente após o processamento.
-            const resumoText = gerarResumo(text);
-            const processado = (resumoText && resumoText !== "Texto muito curto.")
-                ? resumoText
-                : text;
+            // A leitura usa exatamente o texto resultante da edição.
+            // Cada quebra de linha representa uma nova página/parágrafo.
+            sentences = buildReadingPagesFromEditedText(text);
 
-            sentences = sent_tokenize_browser(processado)
-                .map(s => garantirEspacos(s))
-                .filter(Boolean);
-
-            // Fallback para textos curtos que não tenham sido tokenizados.
             if (!sentences.length) {
-                sentences = [garantirEspacos(processado)];
+                sentences = [text];
             }
 
             currentIndex = 0;
             showCurrent();
             updateCounters();
+
+            // O botão de preparar a leitura encerra o modo de edição,
+            // libera o teclado novamente e define o nome pelas sete primeiras palavras.
+            toggleTextEditMode(false);
+            rawTextArea.readOnly = false;
+            updateLinkTitleFromText(text);
+            clearTextEditDraft();
+            resetTextEditUndo();
+            exitReaderReadingMode();
         }
 
         function clearRawText() {
@@ -1607,6 +1961,9 @@
             clearAppliedEditorVersion();
             rawTextManuallyEditedSinceEditor = true;
             rawTextArea.value = "";
+            clearTextEditDraft();
+            resetTextEditUndo();
+            toggleTextEditMode(false);
             sentences = [];
             currentIndex = 0;
             output.textContent = "Texto apagado.";
@@ -1891,61 +2248,145 @@
 
 
         let googleSearchUrlAtual = "";
+        // Fluxo Google -> copiar -> Voltar:
+        // o marcador só existe enquanto uma pesquisa iniciada pela Leitura Guiada
+        // estiver aguardando o texto copiado.
+        let googleAwaitingClipboardPaste = false;
+        try {
+            googleAwaitingClipboardPaste =
+                sessionStorage.getItem('googleAwaitingClipboardPaste') === '1';
+        } catch (e) {}
 
-
-        function handleGoogleAction(){
+        function handleGoogleAction() {
             searchGoogleCore();
+        }
+
+        let googleClipboardRetryTimer = null;
+        let googleClipboardRetryCount = 0;
+
+        function limparPendenciaGoogle() {
+            googleAwaitingClipboardPaste = false;
+            try {
+                sessionStorage.removeItem('googleAwaitingClipboardPaste');
+            } catch (e) {}
+        }
+
+        async function autoPasteCopiedGoogleText() {
+            if (!googleAwaitingClipboardPaste) return false;
+            if (!navigator.clipboard || !navigator.clipboard.readText) return false;
+
+            try {
+                const texto = await navigator.clipboard.readText();
+                if (!texto || !texto.trim()) return false;
+
+                aplicarColagemGoogle(texto, '');
+                limparPendenciaGoogle();
+
+                if (googleClipboardRetryTimer) {
+                    clearInterval(googleClipboardRetryTimer);
+                    googleClipboardRetryTimer = null;
+                }
+                googleClipboardRetryCount = 0;
+                return true;
+            } catch (err) {
+                console.warn('Leitura automática do clipboard bloqueada pelo navegador:', err);
+                return false;
+            }
+        }
+
+        function iniciarVigilanciaClipboardGoogle() {
+            if (!googleAwaitingClipboardPaste) return;
+
+            googleClipboardRetryCount = 0;
+            if (googleClipboardRetryTimer) {
+                clearInterval(googleClipboardRetryTimer);
+            }
+
+            autoPasteCopiedGoogleText();
+
+            googleClipboardRetryTimer = setInterval(async () => {
+                if (!googleAwaitingClipboardPaste) {
+                    clearInterval(googleClipboardRetryTimer);
+                    googleClipboardRetryTimer = null;
+                    return;
+                }
+
+                googleClipboardRetryCount++;
+                const colou = await autoPasteCopiedGoogleText();
+
+                if (colou || googleClipboardRetryCount >= 20) {
+                    clearInterval(googleClipboardRetryTimer);
+                    googleClipboardRetryTimer = null;
+                }
+            }, 500);
         }
 
         function searchGoogleCore() {
             const q = document.getElementById('searchInput').value.trim();
-            if (!q) { alert('Digite um termo para pesquisar.'); return; }
+            if (!q) {
+                alert('Digite um termo para pesquisar.');
+                return;
+            }
 
             const rotuloInput = document.getElementById('rotuloLinkInput');
-            // Em uma nova leitura, o termo pesquisado vira o título padrão.
             if (!leituraIdAtual && rotuloInput) {
                 const atual = rotuloInput.value.trim();
                 if (!atual || atual === 'Leitura Guiada') rotuloInput.value = q;
             }
 
-            googleSearchUrlAtual = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+            googleSearchUrlAtual =
+                `https://www.google.com/search?q=${encodeURIComponent(q)}`;
 
-            // Abre a pesquisa em outra aba. Não usa iframe, overlay nem captura automática.
-            const opened = window.open(googleSearchUrlAtual, '_blank', 'noopener,noreferrer');
-            if (!opened) {
-                // Alguns navegadores bloqueiam pop-up quando a ação não é considerada direta.
-                // Nesse caso, oferece uma navegação explícita sem criar um modal.
-                const hint = document.getElementById('googleInlineHint');
-                if (hint) {
-                    hint.style.display = 'flex';
-                    hint.innerHTML = '<strong>🌐 A pesquisa não pôde abrir em nova aba.</strong><span>Permita pop-ups para o Alumno ou <a href="' + googleSearchUrlAtual + '" target="_blank" rel="noopener noreferrer">abra a pesquisa no Google aqui</a>.</span>';
-                }
-                return;
-            }
+            // IMPORTANTE: a pesquisa usa a mesma aba. Assim o botão Voltar
+            // devolve exatamente para esta página e o marcador continua no sessionStorage.
+            googleAwaitingClipboardPaste = true;
+            try {
+                sessionStorage.setItem('googleAwaitingClipboardPaste', '1');
+            } catch (e) {}
 
-            const hint = document.getElementById('googleInlineHint');
-            if (hint) {
-                hint.style.display = 'flex';
-                hint.innerHTML = '<strong>📋 Pesquisa aberta em uma nova aba.</strong><span>Selecione com o mouse o trecho que deseja estudar, copie com <strong>Ctrl+C</strong>, volte para a Leitura Guiada e cole o texto na caixa de entrada.</span>';
-            }
+            window.location.href = googleSearchUrlAtual;
         }
 
-        // Compatibilidade com referências antigas: não captura mais a área de transferência.
+        // Compatibilidade com versões antigas que chamavam esta função.
+        // Se houver um retorno explícito para esta função, ela tenta a captura.
         function captureCopiedGoogleText() {
-            console.info('ALUMNO: captura automática do Google foi removida. Use Ctrl+C e depois Ctrl+V na Leitura Guiada.');
+            return autoPasteCopiedGoogleText();
         }
 
         function closeGoogleSearch() {
-            // A pesquisa do Google agora abre em uma aba separada; não existe mais modal para fechar.
+            // Mantida por compatibilidade com versões anteriores.
         }
 
         function openGoogleExternal() {
-            if (googleSearchUrlAtual) {
-                window.open(googleSearchUrlAtual, '_blank', 'noopener,noreferrer');
-                const hint = document.getElementById('googleInlineHint');
-                if (hint) hint.style.display = 'flex';
-            }
+            if (!googleSearchUrlAtual) return;
+            googleAwaitingClipboardPaste = true;
+            try {
+                sessionStorage.setItem('googleAwaitingClipboardPaste', '1');
+            } catch (e) {}
+            window.open(googleSearchUrlAtual, '_blank', 'noopener,noreferrer');
         }
+
+        // O retorno pelo botão Voltar pode disparar pageshow/focus/visibilitychange.
+        // Não iniciamos nenhuma captura se não houver uma pesquisa pendente.
+        window.addEventListener('focus', iniciarVigilanciaClipboardGoogle);
+        window.addEventListener('pageshow', () => {
+            try {
+                if (sessionStorage.getItem('googleAwaitingClipboardPaste') === '1') {
+                    googleAwaitingClipboardPaste = true;
+                }
+            } catch (e) {}
+
+            if (googleAwaitingClipboardPaste) {
+                setTimeout(iniciarVigilanciaClipboardGoogle, 80);
+                setTimeout(iniciarVigilanciaClipboardGoogle, 500);
+            }
+        });
+        window.addEventListener('resume', iniciarVigilanciaClipboardGoogle);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                iniciarVigilanciaClipboardGoogle();
+            }
+        });
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -2035,11 +2476,25 @@
             speakCurrent();
         }
 
+        function enterReaderReadingMode() {
+            const reader = document.querySelector('.reader-column');
+            if (!reader) return;
+            reader.classList.add('reader-reading-mode');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function exitReaderReadingMode() {
+            const reader = document.querySelector('.reader-column');
+            if (reader) reader.classList.remove('reader-reading-mode');
+            document.body.style.overflow = '';
+        }
+
         function nextSentence() {
             if (!sentences.length) return;
             stopReading();
             currentIndex = (currentIndex + 1) % sentences.length;
             showCurrent();
+            enterReaderReadingMode();
         }
 
         function prevSentence() {
@@ -2047,7 +2502,49 @@
             stopReading();
             currentIndex = (currentIndex - 1 + sentences.length) % sentences.length;
             showCurrent();
+            enterReaderReadingMode();
         }
+
+        // No celular, um toque simples em qualquer ponto das laterais da tela
+        // também avança/retorna a página. O centro permanece livre para leitura.
+        let readerTouchStartX = null;
+        let readerTouchStartY = null;
+
+        function handleReaderLateralPointerDown(event) {
+            if (!document.querySelector('.reader-column.reader-reading-mode')) return;
+            readerTouchStartX = event.clientX;
+            readerTouchStartY = event.clientY;
+        }
+
+        function handleReaderLateralPointerUp(event) {
+            if (!document.querySelector('.reader-column.reader-reading-mode')) return;
+            if (readerTouchStartX === null || readerTouchStartY === null) return;
+
+            const dx = Math.abs(event.clientX - readerTouchStartX);
+            const dy = Math.abs(event.clientY - readerTouchStartY);
+            const x = event.clientX;
+            const width = window.innerWidth;
+            const lateralWidth = Math.max(70, Math.min(150, width * 0.20));
+
+            // Ignora arrastes e cliques nos próprios controles.
+            const target = event.target;
+            const isControl = target && (target.closest('button, input, textarea, select, a') || target === document.body);
+            const isSimpleTap = dx <= 12 && dy <= 12;
+
+            if (isSimpleTap && !isControl) {
+                if (x <= lateralWidth) {
+                    prevSentence();
+                } else if (x >= width - lateralWidth) {
+                    nextSentence();
+                }
+            }
+
+            readerTouchStartX = null;
+            readerTouchStartY = null;
+        }
+
+        document.addEventListener('pointerdown', handleReaderLateralPointerDown, { passive: true });
+        document.addEventListener('pointerup', handleReaderLateralPointerUp, { passive: true });
         function toggleVoice() { voiceEnabled = !voiceEnabled; document.getElementById('voiceToggleBtn').textContent = voiceEnabled ? '🗣️' : '🔇'; if (!voiceEnabled) speechSynthesis.cancel(); }
 
 
@@ -2070,8 +2567,7 @@
                 // Permite salvar também quando o texto foi editado mas ainda não sincronizado.
                 const textoAtual = (sentences.join('\n\n') || rawTextArea.value).trim();
                 if (textoAtual) {
-                    sentences = textoAtual.split(/\n\s*\n/).flatMap(p => sent_tokenize_browser(p))
-                        .map(s => garantirEspacos(s)).filter(Boolean);
+                    sentences = buildReadingPagesFromEditedText(textoAtual);
                 }
             }
 
@@ -2089,7 +2585,7 @@
                 let leituraId = leituraIdAtual;
                 const leituraData = {
                     rawText: rawTextArea.value,
-                    processedText: sentences.join('\n\n'),
+                    processedText: sentences.join('\n'),
                     sentences: sentences,
                     atualizadoEm: agora
                 };
@@ -2190,12 +2686,24 @@
                     lastEditorBaseText = '';
                     clearAppliedEditorVersion();
                     rawTextManuallyEditedSinceEditor = false;
-                    if (data && data.sentences) {
-                        sentences = data.sentences.map(s => garantirEspacos(s));
+                    if (data && data.rawText) {
+                        // O texto bruto salvo é a fonte principal, pois contém
+                        // exatamente as quebras de página definidas na edição.
+                        rawTextArea.value = String(data.rawText)
+                            .replace(/\r\n/g, '\n')
+                            .replace(/\r/g, '\n');
+
+                        sentences = buildReadingPagesFromEditedText(rawTextArea.value);
                         lastEditorAppliedCells = [...sentences];
-                        lastEditorAppliedText = sentences.join('\n\n');
+                        lastEditorAppliedText = sentences.join('\n');
                         currentIndex = 0;
-                        if (data.rawText) rawTextArea.value = garantirEspacos(data.rawText);
+                        showCurrent();
+                        updateCounters();
+                    } else if (data && data.sentences) {
+                        sentences = data.sentences.map(s => garantirEspacos(s)).filter(Boolean);
+                        lastEditorAppliedCells = [...sentences];
+                        lastEditorAppliedText = sentences.join('\n');
+                        currentIndex = 0;
                         showCurrent();
                         updateCounters();
                     }
