@@ -1988,7 +1988,14 @@
             if (selectedVoice) utter.voice = selectedVoice;
             utter.rate = parseFloat(document.getElementById('voiceRate')?.value) || 1;
 
-            utter.onend = () => { if (autoMode) setTimeout(nextSentenceAuto, 250); else document.getElementById('playPauseBtn').textContent = '▶️'; };
+            utter.onend = () => {
+                if (autoMode) {
+                    setTimeout(nextSentenceAuto, 250);
+                } else {
+                    const playBtn = document.getElementById('playPauseBtn');
+                    if (playBtn) playBtn.textContent = '▶️';
+                }
+            };
             speechSynthesis.speak(utter);
         }
 
@@ -2001,9 +2008,18 @@
 
         function stopReading() {
             autoMode = false;
-            document.getElementById('autoModeSwitch').checked = false;
-            speechSynthesis.cancel();
-            document.getElementById('playPauseBtn').textContent = '▶️';
+
+            const autoSwitch = document.getElementById('autoModeSwitch');
+            if (autoSwitch) autoSwitch.checked = false;
+
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+            }
+
+            // O controle de voz foi ocultado da interface principal.
+            // Portanto, só atualiza o botão se ele existir.
+            const playBtn = document.getElementById('playPauseBtn');
+            if (playBtn) playBtn.textContent = '▶️';
         }
 
         function toggleAutoMode() {
