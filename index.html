@@ -285,36 +285,38 @@
 
         .reader-navigation {
             display: grid;
-            grid-template-columns: 42px minmax(0, 1fr) 42px;
-            gap: 8px;
-            align-items: stretch;
+            grid-template-columns: 28px minmax(0, 1fr) 28px;
+            gap: 6px;
+            align-items: center;
             width: 100%;
         }
 
         .paragraph-nav {
-            width: 42px;
-            min-height: 430px;
+            width: 28px;
+            height: 56px;
             padding: 0;
-            border-radius: 10px;
-            background: transparent;
-            color: var(--primary-color);
-            border: 1px solid var(--border-color);
+            border: 0;
+            border-radius: 0;
+            background: transparent !important;
+            color: #9ca3af;
             box-shadow: none;
-            font-size: 28px;
-            font-weight: 500;
+            font-size: 34px;
+            line-height: 1;
+            font-weight: 300;
             cursor: pointer;
-            align-self: stretch;
+            align-self: center;
+            transition: color .15s, transform .15s;
         }
 
         .paragraph-nav:hover {
-            background: rgba(255,255,255,.65);
-            color: var(--primary-hover-color);
-            transform: none;
+            background: transparent !important;
+            color: #4b5563;
+            transform: scale(1.08);
         }
 
         .paragraph-nav:disabled {
-            opacity: .35;
-            cursor: not-allowed;
+            opacity: .25;
+            cursor: default;
         }
 
         .reader-container #output {
@@ -830,14 +832,14 @@
             }
 
             .reader-navigation {
-                grid-template-columns: 34px minmax(0, 1fr) 34px;
-                gap: 5px;
+                grid-template-columns: 24px minmax(0, 1fr) 24px;
+                gap: 4px;
             }
 
             .paragraph-nav {
-                width: 34px;
-                min-height: 360px;
-                font-size: 24px;
+                width: 24px;
+                height: 48px;
+                font-size: 28px;
             }
 
             .reader-container #output {
@@ -871,14 +873,14 @@
             }
 
             .reader-navigation {
-                grid-template-columns: 30px minmax(0, 1fr) 30px;
-                gap: 4px;
+                grid-template-columns: 22px minmax(0, 1fr) 22px;
+                gap: 3px;
             }
 
             .paragraph-nav {
-                width: 30px;
-                min-height: 320px;
-                font-size: 22px;
+                width: 22px;
+                height: 44px;
+                font-size: 26px;
             }
 
             .reader-container #output {
@@ -1571,14 +1573,29 @@
 
         function generateSentences() {
             stopReading();
-            const text = rawTextArea.value;
-            if (!text.trim()) {
+            const text = (rawTextArea.value || '').trim();
+
+            if (!text) {
                 alert("Cole ou digite um texto antes de resumir.");
                 return;
             }
+
+            // Gera o conteúdo de leitura e mantém cada frase como uma unidade
+            // navegável. A visualização é atualizada imediatamente após o processamento.
             const resumoText = gerarResumo(text);
-            sentences = resumoText.split(/\n\s*\n/).flatMap(p => sent_tokenize_browser(p))
-                .map(s => garantirEspacos(s)).filter(Boolean);
+            const processado = (resumoText && resumoText !== "Texto muito curto.")
+                ? resumoText
+                : text;
+
+            sentences = sent_tokenize_browser(processado)
+                .map(s => garantirEspacos(s))
+                .filter(Boolean);
+
+            // Fallback para textos curtos que não tenham sido tokenizados.
+            if (!sentences.length) {
+                sentences = [garantirEspacos(processado)];
+            }
+
             currentIndex = 0;
             showCurrent();
             updateCounters();
@@ -2002,8 +2019,19 @@
             speakCurrent();
         }
 
-        function nextSentence() { if (!sentences.length) return; stopReading(); currentIndex = (currentIndex + 1) % sentences.length; showCurrent(); if (voiceEnabled) speakCurrent(); }
-        function prevSentence() { if (!sentences.length) return; stopReading(); currentIndex = (currentIndex - 1 + sentences.length) % sentences.length; showCurrent(); if (voiceEnabled) speakCurrent(); }
+        function nextSentence() {
+            if (!sentences.length) return;
+            stopReading();
+            currentIndex = (currentIndex + 1) % sentences.length;
+            showCurrent();
+        }
+
+        function prevSentence() {
+            if (!sentences.length) return;
+            stopReading();
+            currentIndex = (currentIndex - 1 + sentences.length) % sentences.length;
+            showCurrent();
+        }
         function toggleVoice() { voiceEnabled = !voiceEnabled; document.getElementById('voiceToggleBtn').textContent = voiceEnabled ? '🗣️' : '🔇'; if (!voiceEnabled) speechSynthesis.cancel(); }
 
 
