@@ -1293,6 +1293,7 @@
                         <button onclick="clearRawText()" class="secondary">🗑️ Limpar</button>
                     </div>
                 </div>
+                <button type="button" id="organizeTextBtn" onclick="organizeRawText()" title="Organizar automaticamente o texto colado" style="width:100%;margin-top:2px">✨ Organizar texto</button>
                 <button id="generateBtn" onclick="generateSentences()" style="width:100%;margin-top:10px">📝 Iniciar
                     leitura</button>
             </div>
@@ -1922,6 +1923,201 @@
             if (!input) return;
             const title = generateLinkTitleFromText(text);
             input.value = title;
+        }
+
+        // Organiza automaticamente textos colados de páginas da web.
+        // A função não resume nem reescreve o conteúdo: apenas reconstrói
+        // a estrutura que normalmente se perde ao copiar de uma página web.
+        function organizeRawText() {
+            const source = (rawTextArea.value || '').trim();
+            if (!source) {
+                alert('Cole um texto antes de organizar.');
+                return;
+            }
+
+            let text = source
+                .replace(/\r\n?/g, '\n')
+                .replace(/\u00a0/g, ' ')
+                .replace(/[ \t]+/g, ' ')
+                .replace(/[ \t]*\n[ \t]*/g, '\n')
+                .trim();
+
+            const escapeRegExp = value => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const normalize = value => String(value || '')
+                .toLowerCase()
+                .replace(/\[[^\]]*\]/g, '')
+                .replace(/^[•▪◦●○\-–—]+\s*/, '')
+                .replace(/[^a-záàâãéêíóôõúç0-9 ]/gi, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const headings = [
+                'Constituição Promulgada (ou Democrática)', 'Constituição Outorgada (ou Autoritária)',
+                'Constituição Promulgada', 'Constituição Outorgada',
+                'Figuras de Palavras ou Semânticas (Sentido)', 'Figuras de Pensamento (Ideias)',
+                'Figuras de Sintaxe ou Construção (Estrutura)', 'Figuras de Som ou Harmonia (Sonoridade)',
+                'Principais Características', 'Características Principais', 'Como funciona',
+                'Exemplos práticos', 'Principais características', 'Características',
+                'Definição', 'Origem', 'Exemplos no Brasil', 'Exemplos', 'Conclusão',
+                'Resumo', 'Importante', 'Observação', 'Diferenças', 'Vantagens', 'Desvantagens'
+            ].sort((a,b) => b.length - a.length);
+
+            const headingAlternation = headings.map(escapeRegExp).join('|');
+
+            // Quebras estruturais perdidas na cópia da web.
+            text = text.replace(/\s*[•▪◦●○]\s*/g, '\n• ');
+            text = text.replace(/\s+(?=\d+\.\s+[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ])/g, '\n');
+            text = text.replace(new RegExp('\\s+(?=(' + headingAlternation + '))', 'giu'), '\n');
+            text = text.replace(new RegExp('(' + headingAlternation + ')\\s*:', 'giu'), '\n$1:\n');
+
+            let lines = text.split('\n')
+                .map(line => line.replace(/\s+/g, ' ').trim())
+                .filter(Boolean);
+
+            // Remove referências repetidas e normaliza itens.
+            lines = lines.map(line => line.replace(/\s*\[[^\]]+\]/g, m => m.trim()).trim());
+
+            // Identifica os itens de lista. Eles são a fonte mais confiável quando
+            // a página copiada trouxe primeiro o texto corrido e depois a lista.
+            const bullets = lines.filter(line => /^•\s*/.test(line));
+            const bulletNorms = bullets.map(b => normalize(b)).filter(Boolean);
+
+            // Remove da parte corrida trechos que reaparecem como itens de lista.
+            // Ex.: "Metáfora: ... [1] • Metáfora: ... [1]" -> fica apenas o item.
+            if (bulletNorms.length) {
+                for (let i = 0; i < lines.length; i++) {
+                    if (/^•\s*/.test(lines[i])) continue;
+                    let line = lines[i];
+                    for (const bn of bulletNorms) {
+                        if (bn.length < 18) continue;
+                        const words = bn.split(' ');
+                        // Usa blocos de 8+ palavras para evitar apagar frases curtas legítimas.
+                        const chunk = words.slice(0, Math.min(words.length, Math.max(8, Math.min(18, words.length))));
+                        if (chunk.length < 8) continue;
+                        const patternText = chunk.map(escapeRegExp).join('\\s+');
+                        const re = new RegExp('(?:^|[.!?;:]\\s*)' + patternText + '[^.!?]*(?=(?:[.!?]|$))', 'iu');
+                        line = line.replace(re, '').replace(/\s{2,}/g, ' ').trim();
+                    }
+                    lines[i] = line;
+                }
+            }
+
+            // Elimina linhas corridas que são essencialmente a mesma informação de um item.
+            const cleaned = [];
+            for (const line of lines) {
+                const n = normalize(line);
+                if (!n) continue;
+                const isBullet = /^•\s*/.test(line);
+                if (!isBullet && bulletNorms.some(bn => bn.length >= 20 && (n === bn || n.includes(bn) || bn.includes(n)))) {
+                    // Se houver uma parte introdutória antes do conteúdo repetido,
+                    // conserva apenas essa parte.
+                    let remainder = line;
+                    for (const bn of bulletNorms) {
+                        if (bn.length < 20) continue;
+                        const words = bn.split(' ');
+                        const chunk = words.slice(0, Math.min(words.length, Math.max(8, Math.min(18, words.length))));
+                        if (chunk.length < 8) continue;
+                        const re = new RegExp(chunk.map(escapeRegExp).join('\\s+'), 'iu');
+                        remainder = remainder.replace(re, ' ').replace(/\s{2,}/g, ' ').trim();
+                    }
+                    if (!normalize(remainder)) continue;
+                    cleaned.push(remainder);
+                } else {
+                    cleaned.push(line);
+                }
+            }
+            lines = cleaned;
+
+            // Deduplicação global dos itens: mantém a primeira ocorrência de cada item.
+            const seenBullets = new Set();
+            lines = lines.filter(line => {
+                if (!/^•\s*/.test(line)) return true;
+                const n = normalize(line);
+                if (seenBullets.has(n)) return false;
+                seenBullets.add(n);
+                return true;
+            });
+
+            // Títulos repetidos em sequência ou na mesma linha.
+            lines = lines.map(line => {
+                let out = line;
+                for (const h of headings) {
+                    const hWords = h.split(/\s+/).map(escapeRegExp).join('\\s+');
+                    out = out.replace(new RegExp('(' + hWords + ')(?:\\s*:\\s*|\\s+)\\1(?=\\s|:|$)', 'iu'), '$1');
+                }
+                return out.replace(/\s+/g, ' ').trim();
+            }).filter(Boolean);
+
+            const mainHeading = /^(Constituição\s+(?:Outorgada|Promulgada)(?:\s*\([^)]*\))?)$/iu;
+            const numberedHeading = /^\d+\.\s+.+$/u;
+            const sectionHeading = /^(Figuras de Palavras ou Semânticas \(Sentido\)|Figuras de Pensamento \(Ideias\)|Figuras de Sintaxe ou Construção \(Estrutura\)|Figuras de Som ou Harmonia \(Sonoridade\)|Principais Características|Características Principais|Como funciona|Exemplos práticos|Características|Definição|Origem|Exemplos(?: no Brasil)?|Conclusão|Resumo|Importante|Observação|Diferenças|Vantagens|Desvantagens):?$/iu;
+
+            const result = [];
+            let previousNorm = '';
+            for (const line of lines) {
+                const n = normalize(line);
+                if (!n || n === previousNorm) continue;
+                previousNorm = n;
+
+                if (mainHeading.test(line)) {
+                    result.push('', line.toUpperCase(), '');
+                    continue;
+                }
+
+                // Mantém títulos numerados como "1. Figuras de..." em linha própria.
+                if (numberedHeading.test(line) && line.length < 90) {
+                    result.push('', line, '');
+                    continue;
+                }
+
+                if (sectionHeading.test(line)) {
+                    result.push('', line.replace(/:$/, '').toUpperCase() + ':', '');
+                    continue;
+                }
+
+                result.push(line);
+            }
+
+            const organized = result.join('\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .replace(/\n +/g, '\n')
+                .trim();
+
+            if (!organized) {
+                alert('Não foi possível organizar este texto.');
+                return;
+            }
+
+            // Mesmo quando o texto já possui as quebras estruturais na caixa,
+            // a ação ORGANIZAR deve reconstruir a leitura usando essas quebras.
+            // Antes, a função encerrava aqui e deixava o leitor em 1 único parágrafo.
+            const changed = organized !== source;
+            rawTextArea.value = organized;
+            markRawTextAsNewContent();
+            handleRawTextInput();
+            updateCounters();
+            saveTextEditDraft();
+
+            sentences = buildReadingPagesFromEditedText(organized);
+
+            // Se ainda houver poucas quebras, aproveita também marcadores e
+            // seções numeradas para criar páginas de leitura úteis.
+            if (sentences.length <= 1) {
+                const fallbackPages = organized
+                    .replace(/\s+•\s+/g, '\n• ')
+                    .replace(/\s+(?=\d+\.\s+)/g, '\n')
+                    .split(/\n+/)
+                    .map(p => p.trim())
+                    .filter(Boolean);
+                if (fallbackPages.length > 1) sentences = fallbackPages;
+            }
+
+            currentIndex = 0;
+            showCurrent();
+            updateCounters();
+            updateLinkTitleFromText(organized);
+
+            if (textEditMode) rawTextArea.blur();
         }
 
         function generateSentences() {
