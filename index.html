@@ -251,7 +251,7 @@
             font-size: 12px;
             font-family: inherit;
             transition: .15s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 5px
@@ -468,6 +468,51 @@
             border: 0;
             border-radius: 0;
             box-shadow: none;
+        }
+
+        /* Controle de voz: permanece visível independentemente de "Mais funções".
+           Fica centralizado imediatamente abaixo da caixa de leitura. */
+        .reader-play-pause {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            padding: 0;
+            margin: 6px auto 0;
+            border-radius: 50%;
+            background: #111827;
+            color: #fff;
+            border: 0;
+            box-shadow: none;
+            font-size: 17px;
+            line-height: 1;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .reader-play-pause:hover {
+            background: #000;
+            transform: scale(1.04);
+        }
+
+        .reader-play-pause:focus-visible {
+            outline: 2px solid #6b7280;
+            outline-offset: 3px;
+        }
+
+        .reader-column.reader-reading-mode .reader-play-pause {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            margin: 0;
+            z-index: 10000;
+        }
+
+        .reader-column.reader-reading-mode .reader-play-pause:hover {
+            transform: translateX(-50%) scale(1.04);
         }
 
         .reader-exit-mode {
@@ -1062,6 +1107,12 @@
                 padding: 25px 20px
             }
 
+            .reader-play-pause {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+            }
+
             .reader-status {
                 flex-direction: column;
                 align-items: flex-start;
@@ -1335,6 +1386,7 @@
                         <div id="output">Bem-vindo ao Leitura Guiada! Cole um texto e clique em Resumir.</div>
                         <button type="button" id="nextBtn" class="paragraph-nav" onclick="nextSentence()" title="Próximo parágrafo" aria-label="Próximo parágrafo">›</button>
                     </div>
+                    <button type="button" id="playPauseBtn" class="reader-play-pause" onclick="playPauseToggle()" title="Ler / Pausar" aria-label="Ler / Pausar">▶</button>
                     <button type="button" id="readerExitModeBtn" class="reader-exit-mode secondary" onclick="exitReaderReadingMode()">✕ Sair do modo leitura</button>
                 </div>
             </div>
@@ -1488,7 +1540,7 @@
         const leituraIdParam =
             urlParams.get('id');
         document.addEventListener('DOMContentLoaded', () => {
-            loadVoices();
+            atualizarVozesComAtraso();
             const initialRawText = document.getElementById('rawText');
             if (initialRawText) initialRawText.readOnly = false;
             verificarContextoUrl();
@@ -1710,45 +1762,99 @@
             return garantirEspacos(textoResumido);
         }
 
+        function normalizarNomeVoz(nome) {
+            return String(nome || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function classificarVozNaturalPtBr(voice) {
+            const nome = normalizarNomeVoz(voice.name);
+            if (/antonio|daniel|felipe|ricardo/.test(nome)) return 'homem';
+            if (/francisca|maria|helena|brenda|camila|female/.test(nome)) return 'mulher';
+            if (/\b(male|man|masculina|homem)\b/.test(nome)) return 'homem';
+            if (/\b(female|woman|feminina|mulher)\b/.test(nome)) return 'mulher';
+            return null;
+        }
+
+        function ehEdge() {
+            return /Edg\//i.test(navigator.userAgent || '');
+        }
+
+        function ehVozNaturalPtBr(voice) {
+            if (!voice) return false;
+            const lang = String(voice.lang || '').replace('_', '-').toLowerCase();
+            if (lang !== 'pt-br') return false;
+            const nome = normalizarNomeVoz(voice.name);
+            const nomeNatural = /antonio|francisca/.test(nome);
+            const marcadorNatural = /natural|neural/.test(nome);
+            const marcadorOnline = /online/.test(nome) && !voice.localService;
+            return nomeNatural && (marcadorNatural || marcadorOnline);
+        }
+
+        function nomeFornecedorVoz(voice) {
+            const nome = normalizarNomeVoz(voice?.name);
+            if (nome.includes('google')) return 'Google';
+            if (nome.includes('microsoft') || nome.includes('online natural') || nome.includes('natural')) return 'Microsoft';
+            return 'Navegador';
+        }
+
         function loadVoices() {
             const allVoices = speechSynthesis.getVoices();
             if (!voiceSelect) return;
-            voiceSelect.innerHTML = "";
-            voices = allVoices.filter(v => v.lang.startsWith('pt-'));
+            voiceSelect.innerHTML = '';
 
-            let defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.textContent = "Automático (Padrão)";
-            voiceSelect.appendChild(defaultOption);
-
-            let antonioIndex = -1;
-
-            voices.forEach((v, i) => {
-                let o = document.createElement("option");
-                o.value = v.name;
-                o.textContent = `${v.name} (${v.lang})`;
-                voiceSelect.appendChild(o);
-
-                // Verifica o nome contendo antonio (ignorando acentos e maiúsculas/minúsculas)
-                const nomeVoz = v.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (nomeVoz.includes('antonio') && nomeVoz.includes('natural')) {
-                    antonioIndex = v.name;
-                }
+            // Todas as vozes pt-BR ficam disponíveis. As vozes naturais
+            // (Antônio e Francisca) têm prioridade e aparecem primeiro.
+            const ptBr = allVoices.filter(v => {
+                const lang = String(v.lang || '').replace('_', '-').toLowerCase();
+                return lang === 'pt-br';
             });
 
-            // Se encontrou a voz do Antônio, define ela como selecionada por padrão
-            if (antonioIndex !== -1) {
-                selectedVoice = voices.find(v => v.name === antonioIndex);
-                voiceSelect.value = antonioIndex;
-            } else if (voices.length > 0) {
-                selectedVoice = voices[0];
-                voiceSelect.value = voices[0].name;
+            const naturaisPtBr = ptBr.filter(ehVozNaturalPtBr);
+            const outrasPtBr = ptBr.filter(v => !ehVozNaturalPtBr(v));
+
+            const homemNatural = naturaisPtBr.find(v => /antonio/.test(normalizarNomeVoz(v.name)));
+            const mulherNatural = naturaisPtBr.find(v => /francisca/.test(normalizarNomeVoz(v.name)));
+
+            // Primeiro as duas vozes naturais preferenciais; depois as demais
+            // vozes pt-BR encontradas no navegador (incluindo as do Google).
+            const preferenciais = [homemNatural, mulherNatural].filter(Boolean);
+            const restantesNaturais = naturaisPtBr.filter(v => !preferenciais.includes(v));
+            voices = [...preferenciais, ...restantesNaturais, ...outrasPtBr];
+
+            if (!voices.length) {
+                const aviso = document.createElement('option');
+                aviso.value = '';
+                aviso.textContent = 'Nenhuma voz pt-BR disponível neste navegador';
+                voiceSelect.appendChild(aviso);
+                selectedVoice = null;
+                return;
             }
+
+            voices.forEach((v, index) => {
+                const natural = ehVozNaturalPtBr(v);
+                const genero = classificarVozNaturalPtBr(v);
+                const fornecedor = nomeFornecedorVoz(v);
+                const o = document.createElement('option');
+                o.value = v.name;
+
+                let prefixo = natural ? '★ Natural' : fornecedor === 'Google' ? 'Google' : 'Outras';
+                let descricao = v.name;
+                if (genero === 'homem' && /antonio/.test(normalizarNomeVoz(v.name))) descricao = `Antônio — ${v.name}`;
+                else if (genero === 'mulher' && /francisca/.test(normalizarNomeVoz(v.name))) descricao = `Francisca — ${v.name}`;
+                o.textContent = `${prefixo} — ${descricao}`;
+                voiceSelect.appendChild(o);
+            });
+
+            // Voz natural é sempre a preferência quando existe; Antônio vem
+            // primeiro e Francisca fica logo em seguida.
+            selectedVoice = homemNatural || mulherNatural || voices[0];
+            voiceSelect.value = selectedVoice.name;
         }
         speechSynthesis.onvoiceschanged = loadVoices;
         voiceSelect.addEventListener("change", () => {
             const nomeSelecionado = voiceSelect.value;
-            selectedVoice = nomeSelecionado === "" ? null : voices.find(v => v.name === nomeSelecionado);
+            selectedVoice = nomeSelecionado ? voices.find(v => v.name === nomeSelecionado) || null : null;
+            if (speechSynthesis.speaking || speechSynthesis.paused) { speechSynthesis.cancel(); setPlayPauseIcon(false); }
         });
 
         // =======================================================
@@ -2617,52 +2723,148 @@
             if (next) next.disabled = false;
         }
 
+        function atualizarBotaoPlay(estado) {
+            const playBtn = document.getElementById('playPauseBtn');
+            if (!playBtn) return;
+
+            if (estado === 'pause') {
+                playBtn.textContent = 'Ⅱ';
+                playBtn.setAttribute('aria-label', 'Pausar leitura');
+                playBtn.title = 'Pausar leitura';
+            } else {
+                playBtn.textContent = '▶';
+                playBtn.setAttribute('aria-label', 'Iniciar leitura');
+                playBtn.title = 'Iniciar leitura';
+            }
+        }
+
+        // Quando acionada pelo botão Play, a leitura percorre todo o texto.
+        // Cada parágrafo é uma fala separada para manter a estabilidade da
+        // SpeechSynthesis, mas a próxima fala começa automaticamente assim que
+        // a anterior termina. O usuário só interrompe pelo Pause.
+        let leituraContinua = false;
+
         function speakCurrent() {
             const text = sentences[currentIndex];
-            if (!voiceEnabled || !text || !text.trim()) { if (autoMode) nextSentenceAuto(); return; }
+            if (!voiceEnabled || !text || !text.trim()) {
+                if (leituraContinua) {
+                    if (currentIndex < sentences.length - 1) {
+                        currentIndex++;
+                        showCurrent();
+                        speakCurrent();
+                    } else {
+                        leituraContinua = false;
+                        atualizarBotaoPlay('play');
+                    }
+                } else {
+                    atualizarBotaoPlay('play');
+                    if (autoMode) nextSentenceAuto();
+                }
+                return;
+            }
+
+            // Só cancela uma fala anterior quando estamos iniciando uma nova
+            // leitura manual. Durante a leitura contínua, a fala anterior já
+            // terminou e a próxima deve entrar naturalmente na fila.
             speechSynthesis.cancel();
             const utter = new SpeechSynthesisUtterance(garantirEspacos(text));
             if (selectedVoice) utter.voice = selectedVoice;
+            utter.lang = selectedVoice?.lang || 'pt-BR';
             utter.rate = parseFloat(document.getElementById('voiceRate')?.value) || 1;
 
+            utter.onstart = () => atualizarBotaoPlay('pause');
+            utter.onpause = () => atualizarBotaoPlay('play');
+            utter.onresume = () => atualizarBotaoPlay('pause');
             utter.onend = () => {
-                if (autoMode) {
-                    setTimeout(nextSentenceAuto, 250);
-                } else {
-                    const playBtn = document.getElementById('playPauseBtn');
-                    if (playBtn) playBtn.textContent = '▶️';
+                if (leituraContinua) {
+                    if (currentIndex < sentences.length - 1) {
+                        currentIndex++;
+                        showCurrent();
+                        // Pequena passagem assíncrona evita que alguns motores
+                        // do Edge/Chromium percam a próxima fala.
+                        setTimeout(speakCurrent, 20);
+                    } else {
+                        leituraContinua = false;
+                        atualizarBotaoPlay('play');
+                    }
+                    return;
                 }
+
+                atualizarBotaoPlay('play');
+                if (autoMode) setTimeout(nextSentenceAuto, 250);
             };
+            utter.onerror = () => {
+                // Se o usuário cancelou pelo Pause/navegação, não reinicia.
+                if (leituraContinua && speechSynthesis.speaking === false && speechSynthesis.paused === false) {
+                    leituraContinua = false;
+                }
+                atualizarBotaoPlay('play');
+            };
+
             speechSynthesis.speak(utter);
         }
 
+        function mostrarAvisoVozNatural() {
+            let aviso = document.getElementById('naturalVoiceNotice');
+            if (!aviso) {
+                aviso = document.createElement('div');
+                aviso.id = 'naturalVoiceNotice';
+                aviso.setAttribute('role', 'status');
+                aviso.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:20000;max-width:min(560px,92vw);padding:11px 16px;border-radius:9px;background:#111827;color:#fff;font:500 13px/1.45 Inter,system-ui,sans-serif;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.22);opacity:0;transition:opacity .18s ease;pointer-events:none;';
+                document.body.appendChild(aviso);
+            }
+
+            if (ehEdge()) {
+                aviso.textContent = 'Voz natural preferencial: Antônio ou Francisca. As vozes naturais funcionam no navegador Edge.';
+            } else {
+                aviso.textContent = 'As vozes naturais Antônio e Francisca estão disponíveis no navegador Edge. Neste navegador, serão usadas outras vozes pt-BR disponíveis, incluindo as do Google quando oferecidas.';
+            }
+
+            aviso.style.opacity = '1';
+            clearTimeout(window.__naturalVoiceNoticeTimer);
+            window.__naturalVoiceNoticeTimer = setTimeout(() => { aviso.style.opacity = '0'; }, 5500);
+        }
+
         function playPauseToggle() {
-            if (!sentences.length) { alert("Resuma o texto primeiro!"); return; }
-            if (speechSynthesis.speaking && !speechSynthesis.paused) { speechSynthesis.pause(); document.getElementById('playPauseBtn').textContent = '▶️'; }
-            else if (speechSynthesis.paused) { speechSynthesis.resume(); document.getElementById('playPauseBtn').textContent = '⏸️'; }
-            else { if (currentIndex < 0 || currentIndex >= sentences.length) currentIndex = 0; showCurrent(); speakCurrent(); }
+            if (!sentences.length) {
+                alert("Inicie a leitura primeiro!");
+                return;
+            }
+            if (speechSynthesis.speaking && !speechSynthesis.paused) {
+                // Pause não encerra a leitura contínua. Ao clicar novamente,
+                // ela continua exatamente do ponto em que foi interrompida.
+                speechSynthesis.pause();
+                atualizarBotaoPlay('play');
+            } else if (speechSynthesis.paused) {
+                speechSynthesis.resume();
+                atualizarBotaoPlay('pause');
+            } else {
+                mostrarAvisoVozNatural();
+                leituraContinua = true;
+                if (currentIndex < 0 || currentIndex >= sentences.length) currentIndex = 0;
+                showCurrent();
+                speakCurrent();
+            }
         }
 
         function stopReading() {
             autoMode = false;
-
+            leituraContinua = false;
             const autoSwitch = document.getElementById('autoModeSwitch');
             if (autoSwitch) autoSwitch.checked = false;
-
-            if ('speechSynthesis' in window) {
-                speechSynthesis.cancel();
-            }
-
-            // O controle de voz foi ocultado da interface principal.
-            // Portanto, só atualiza o botão se ele existir.
-            const playBtn = document.getElementById('playPauseBtn');
-            if (playBtn) playBtn.textContent = '▶️';
+            if ('speechSynthesis' in window) speechSynthesis.cancel();
+            atualizarBotaoPlay('play');
         }
 
         function toggleAutoMode() {
             autoMode = document.getElementById('autoModeSwitch').checked;
-            if (autoMode && !speechSynthesis.speaking) { showCurrent(); speakCurrent(); }
-            else speechSynthesis.cancel();
+            if (autoMode && !speechSynthesis.speaking) {
+                showCurrent();
+                speakCurrent();
+            } else {
+                speechSynthesis.cancel();
+                atualizarBotaoPlay('play');
+            }
         }
 
         function nextSentenceAuto() {
@@ -2683,6 +2885,7 @@
             const reader = document.querySelector('.reader-column');
             if (reader) reader.classList.remove('reader-reading-mode');
             document.body.style.overflow = '';
+            atualizarBotaoPlay(speechSynthesis.speaking && !speechSynthesis.paused ? 'pause' : 'play');
         }
 
         function nextSentence() {
